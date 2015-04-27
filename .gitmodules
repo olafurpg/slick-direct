@@ -1,0 +1,3 @@
+[submodule "directembedding"]
+	path = directembedding
+	url = git@github.com:directembedding/directembedding.git
