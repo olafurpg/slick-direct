@@ -13,6 +13,8 @@ trait Query[T] {
    * The accumulated AST in this query
    */
   protected def ast: slick.ast.Node
+  type Self
+  protected def shaped: ShapedValue[T, _]
   // TODO: add shape to query
 
   def toNode = ast
@@ -29,11 +31,13 @@ trait Query[T] {
 
 object MapQuery {
   // WIP
-  def apply[T, U, V, W](self: Query[_], f: T => U): Any = {
+  def apply[U, V, W](self: Query[_])(f: self.Self => U): Any = {
     val q: Query[U] = new Query[U] {
+      def shaped = ???
+      type Self = U
       def ast = self.toNode
     }
-    FlatMapQuery[T, U](self, v => q)
+    FlatMapQuery[self.Self, U](self, v => q)
   }
 }
 
@@ -41,8 +45,8 @@ object FlatMapQuery {
   // WIP
   def apply[T, U](self: Query[_], f: T => Query[U]): Any = {
     val generator = new AnonSymbol
-    val aliased =
 
+    ???
   }
 }
 
@@ -54,11 +58,12 @@ object Query extends SlickReflectUtil {
     println(table)
   }
 
-
   @reifyAs(TableExpansion)
   def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = new Query[T] {
     override protected def ast: Node = {
       new SlickReifier(driver).tableExpansion(typeTag[T])
     }
+    type Self = T
+    def shaped = ???
   }
 }
