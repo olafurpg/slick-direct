@@ -16,30 +16,36 @@ trait Query[T] {
 
 object Query {
 
-  def getTableFromSymbol(symbol: Symbol): Table = {
+  /**
+   * Map class definition to slick.model.Table
+   */
+  private def getTableFromSymbol(classDefSymbol: Symbol): Table = {
     def getNameOfSymbol(symbol: Symbol): Option[String] = {
       // workaround for SI-7424
       symbol.typeSignature
-      symbol.annotations.foreach(_.tpe)
-      symbol.annotations.headOption.map(_.scalaArgs.head).flatMap(annotationToName)
+      symbol.annotations.foreach(_.tree.tpe)
+      symbol.annotations.headOption.map(x => x.tree.children.tail.head).flatMap(annotationToName)
     }
     def annotationToName(tree: Tree): Option[String] = tree match {
       case Literal(Constant(name: String)) => Some(name)
       case _ => None
     }
-    val tName = symbol.name.toString()
-    val tableName = getNameOfSymbol(symbol).getOrElse(tName)
+    val tName = classDefSymbol.name.toString()
+    val tableName = getNameOfSymbol(classDefSymbol).getOrElse(tName)
     val tableQName = QualifiedName(tableName)
-    val columns = symbol.typeSignature.member(ru.termNames.CONSTRUCTOR).typeSignature match {
+    val columns = classDefSymbol.typeSignature.member(ru.termNames.CONSTRUCTOR).typeSignature match {
       case MethodType(params, resultType) => params map { param =>
         val cName = param.name.toString()
         val columnName = getNameOfSymbol(param).getOrElse(cName)
         val tpe = param.typeSignature.dealias.typeSymbol.name.decodedName.toString
+        // TODO: Options, nullable, etc
         Column(columnName, tableQName, tpe, false)
       }
     }
+    // TODO: Indices and FK
     Table(tableQName, columns, None, Nil, Nil)
   }
+
   def getTable[T:TypeTag]: Unit = {
     val tt = typeTag[T]
     val table = getTableFromSymbol(tt.tpe.typeSymbol)
