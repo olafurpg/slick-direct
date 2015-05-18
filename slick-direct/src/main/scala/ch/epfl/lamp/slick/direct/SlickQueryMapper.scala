@@ -36,6 +36,14 @@ class SlickQueryMapper(val driver: JdbcDriver)
         val sq_rhs = columnSelect(symbol, sq.Ref(sq_symbol))
         sq.Bind(sq_symbol, sq_lhs, sq.Pure(sq_rhs))
       }
+      case FlatMap(lhs, field) => {
+        val sq_lhs = toNode(lhs)
+        // TODO: What if it's missing?
+        val tt = lhs.getTypeTag.get
+        val symbol = members(tt).find(sym2String(_) == field).head
+        val sq_rhs = columnSelect(symbol, sq.Ref(sq_symbol))
+        sq.Bind(sq_symbol, sq_lhs, sq.Pure(sq_rhs))
+      }
       case _ => ???
     }
   }

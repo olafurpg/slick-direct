@@ -55,13 +55,13 @@ package object direct {
       liftRep(true)(c)(block)
 
     def liftRep[T](debug: Boolean)(c: blackbox.Context)(block: c.Expr[T]): c.Expr[T] = {
-      val preProcessing = new ProjectionProcessing[c.type](c)
+      val postProcessing = new ProjectionProcessing[c.type](c)
       DETransformer[c.type, T, Config](c)(
         "slick-direct",
         DslConfig,
         Map.empty,
         None,
-        Some(preProcessing),
+        Some(postProcessing),
         debug
       ).apply(block)
     }

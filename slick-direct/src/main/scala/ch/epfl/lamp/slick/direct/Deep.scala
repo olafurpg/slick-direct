@@ -28,7 +28,11 @@ case class Take[T](self: SlickQuery[_], n: Const[Int]) extends SlickQuery[T] {
   lazy val getTypeTag: Option[TypeTag[_]] = self.getTypeTag
 }
 
-// TODO: What about multiple columns, make fields: List[String]?
+// TODO: Use Shape from ast.slick
 case class MapAction[U](self: SlickQuery[_], field: String) extends SlickQuery[U] {
+  lazy val getTypeTag: Option[TypeTag[_]] = self.getTypeTag
+}
+
+case class FlatMap[U](self: SlickQuery[_], field: String) extends SlickQuery[U] {
   lazy val getTypeTag: Option[TypeTag[_]] = self.getTypeTag
 }

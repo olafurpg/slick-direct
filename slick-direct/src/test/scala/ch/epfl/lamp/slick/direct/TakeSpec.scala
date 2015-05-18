@@ -12,7 +12,7 @@ class TakeSpec extends FlatSpec with TestHelper {
       query {
         dUsers.take(0)
       }.result,
-      users.take(0).result
+      liftedUsers.take(0).result
     )
   }
 
@@ -22,7 +22,7 @@ class TakeSpec extends FlatSpec with TestHelper {
       query {
         dUsers.take(1)
       }.result,
-      users.take(1).result
+      liftedUsers.take(1).result
     )
   }
 
@@ -32,7 +32,7 @@ class TakeSpec extends FlatSpec with TestHelper {
       query {
         dCars.take(1)
       }.result,
-      cars.take(1).result
+      liftedCars.take(1).result
     )
   }
 

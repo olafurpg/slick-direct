@@ -9,9 +9,11 @@ class MapSpec extends FlatSpec with TestHelper {
     val dUsers = Query[User]
     equalQueries(
       query {
-        dUsers.map(u => u.name)
+        for {
+          user <- dUsers
+        } yield user.name
       }.result,
-      users.map(_.name).result
+      liftedUsers.map(_.name).result
     )
   }
 
@@ -21,7 +23,7 @@ class MapSpec extends FlatSpec with TestHelper {
       query {
         dUsers.map(u => u.id)
       }.result,
-      users.map(_.id).result
+      liftedUsers.map(_.id).result
     )
   }
 
@@ -31,7 +33,7 @@ class MapSpec extends FlatSpec with TestHelper {
       query {
         dCars.map(u => u.id)
       }.result,
-      cars.map(_.id).result
+      liftedCars.map(_.id).result
     )
   }
 

@@ -5,7 +5,6 @@ import ch.epfl.directembedding.transformers.reifyAs
 import scala.reflect.runtime.universe.TypeTag
 
 trait Query[T] {
-  def flatMap[S](projection: T => Query[S]): Query[S] = ???
   def withFilter(projection: T => Boolean): Query[T] = ???
   def length: Int = ???
 
@@ -14,6 +13,9 @@ trait Query[T] {
 
   @reifyAs(MapAction)
   def map[U](f: T => U): Query[U] = ???
+
+  @reifyAs(FlatMap)
+  def flatMap[S](projection: T => Query[S]): Query[S] = ???
 
 }
 
