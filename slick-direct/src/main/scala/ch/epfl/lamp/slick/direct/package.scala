@@ -11,8 +11,8 @@ import scala.reflect.runtime.universe.TypeTag
 package object direct {
 
   def DIRECT: Nothing = ???
-  def query[T](block: Query[T]): SlickQuery[T] = macro implementations.lift[T]
-  def queryDebug[T](block: Query[T]): SlickQuery[T] = macro implementations.liftDebug[T]
+  def query[T](block: T): T = macro implementations.lift[T]
+  def queryDebug[T](block: T): T = macro implementations.liftDebug[T]
 
   implicit def lit2const[T](e: T): Const[T] = Const(e)
 
@@ -37,7 +37,9 @@ package object direct {
     type Rep[T] = direct.SlickQuery[T]
 
     // TODO: Do we want the result to be from slick.ast?
-    def compile[T](e: Rep[T]): Rep[T] = e
+    def compile[T](e: slick.ast.Node): Query[T] = new Query[T] {
+      def ast = e
+    }
 
     def dsl[T](e: Rep[T]): T = ???
 

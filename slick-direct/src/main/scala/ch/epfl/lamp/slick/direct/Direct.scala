@@ -13,7 +13,11 @@ trait Query[T] {
    * The accumulated AST in this query
    */
   protected def ast: slick.ast.Node
+
   def toNode = ast
+
+  @reifyAs(Take)
+  def take(i: Int): Query[T] = ???
 }
 
 object Query extends SlickReflectUtil {
