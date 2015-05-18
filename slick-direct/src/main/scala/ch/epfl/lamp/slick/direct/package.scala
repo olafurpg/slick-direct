@@ -1,9 +1,10 @@
 package ch.epfl.lamp.slick
 
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
+import slick.ast.LiteralNode
 import slick.dbio.NoStream
 
-import scala.reflect.macros.{Universe, Context, blackbox}
+import scala.reflect.macros.{ Universe, Context, blackbox }
 
 import slick.driver.H2Driver.api._
 import scala.reflect.runtime.universe.TypeTag
@@ -24,7 +25,6 @@ package object direct {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
-
   object Config extends Config
 
   trait Config extends DslConfig
@@ -33,17 +33,22 @@ package object direct {
     override val virtualizeFunctions: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
-    type Literal[T] = direct.Const[T]
-    type Rep[T] = direct.SlickQuery[T]
+    type Literal[T] = slick.ast.Node
+    type Rep[T] = slick.ast.Node
 
     // TODO: Do we want the result to be from slick.ast?
-    def compile[T](e: slick.ast.Node): Query[T] = new Query[T] {
-      def ast = e
-    }
+    def compile[T](e: slick.ast.Node): Query[T] =
+      new Query[T] {
+        def ast = e
+      }
 
     def dsl[T](e: Rep[T]): T = ???
 
-    def lift[T](e: T): Literal[T] = Const(e)
+    def lift[T](e: T): Literal[T] = e match {
+      case n: Int => LiteralNode[Long](n)
+      case q: Query[_] => q.toNode
+      case _ => ???
+    }
   }
 
   trait VirtualizationOverrides {
@@ -51,7 +56,6 @@ package object direct {
   }
 
   object DslConfig extends Config
-
 
   object implementations {
     def lift[T](c: blackbox.Context)(block: c.Expr[T]): c.Expr[T] =

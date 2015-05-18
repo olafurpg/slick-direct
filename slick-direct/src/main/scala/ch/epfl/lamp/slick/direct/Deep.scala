@@ -28,7 +28,7 @@ case class Select_*[T](tt: TypeTag[T]) extends SlickQuery[T] {
   lazy val getTypeTag: Option[TypeTag[_]] = Some(tt)
 }
 
-case class Take[T](self: SlickQuery[_], n: Const[Int]) extends SlickQuery[T] {
+case class ShallowTake[T](self: SlickQuery[_], n: Const[Int]) extends SlickQuery[T] {
   lazy val getTypeTag: Option[TypeTag[_]] = self.getTypeTag
 }
 

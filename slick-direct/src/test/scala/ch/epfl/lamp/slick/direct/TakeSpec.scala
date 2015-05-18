@@ -1,6 +1,7 @@
 package ch.epfl.lamp.slick.direct
 
 import ch.epfl.lamp.slick.direct
+import slick.ast._
 import org.scalatest.FlatSpec
 import slick.driver.H2Driver.api._
 
@@ -12,7 +13,7 @@ class TakeSpec extends FlatSpec with TestHelper {
   "Query[T].take" should "work" in {
     direct.Query.getTable[User]
     val users = Query[User]
-    
+
     equalQueries(
       queryDebug {
         users.take(1)
