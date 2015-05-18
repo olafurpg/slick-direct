@@ -16,7 +16,6 @@ sealed trait SlickQuery[T] extends Query[T] {
 
 case class Const[T](e: T) extends SlickQuery[T] {
   lazy val getTypeTag: Option[TypeTag[_]] = e match {
-    case BaseQuery(tt) => Some(tt)
     case _ => None
   }
 }

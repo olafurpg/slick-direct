@@ -6,13 +6,13 @@ import slick.driver.H2Driver.api._
 class ProblemSpec extends FlatSpec with TestHelper {
   val users = Query[User]
   val cars = Query[User]
+      // Closure for reifyAs annotation
+      // Composition of queries (stick AST inside Query[T])
+      // Preprocessing for case classes
 
 //  "Query.flatMap" should "work" in {
 //    val direct =
 //    // TODOs:
-//    // Closure for reifyAs annotation
-//    // Composition of queries (stick AST inside Query[T])
-//    // Preprocessing for case classes
 //      queryDebug {
 //        for {
 //          user <- users

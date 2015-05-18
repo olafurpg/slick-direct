@@ -1,5 +1,6 @@
 package ch.epfl.lamp.slick.direct
 import slick.driver.JdbcDriver
+
 import scala.reflect.runtime.universe._
 import slick.{ ast => sq }
 
@@ -16,7 +17,6 @@ class SlickQueryMapper(val driver: JdbcDriver)
     q match {
       case Const(e) => e match {
           // We hit a leaf node
-        case s @ BaseQuery(tt) => Select_*(tt).toNode(driver)
         case _ => literalNode(e)
       }
       case Take(lhs, n) => sq.Take(toNode(lhs), sq.LiteralNode[Long](n.e.toLong))
