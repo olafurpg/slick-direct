@@ -6,6 +6,7 @@ import slick.{ ast => sq }
 import scala.reflect.runtime.universe.TypeTag
 
 sealed trait SlickQuery[T] extends Query[T] {
+
   def toNode(implicit driver: JdbcDriver): sq.Node = {
     new SlickQueryMapper(driver).toNode(this)
   }
@@ -18,6 +19,10 @@ case class Const[T](e: T) extends SlickQuery[T] {
     case BaseQuery(tt) => Some(tt)
     case _ => None
   }
+}
+
+case class EmptyQuery[T]() extends SlickQuery[T] {
+  lazy val getTypeTag: Option[TypeTag[_]] = None
 }
 
 case class Select_*[T](tt: TypeTag[T]) extends SlickQuery[T] {

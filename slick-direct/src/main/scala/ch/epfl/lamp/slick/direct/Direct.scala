@@ -5,6 +5,7 @@ import ch.epfl.directembedding.transformers.reifyAs
 import scala.reflect.runtime.universe.TypeTag
 
 trait Query[T] {
+  protected def ast: SlickQuery[T] = EmptyQuery()
   def withFilter(projection: T => Boolean): Query[T] = ???
   def length: Int = ???
 
