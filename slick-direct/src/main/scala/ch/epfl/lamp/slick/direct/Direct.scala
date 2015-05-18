@@ -3,7 +3,7 @@ package ch.epfl.lamp.slick.direct
 import ch.epfl.directembedding.transformers.reifyAs
 import slick.ast._
 import slick.driver.JdbcDriver
-import slick.lifted.TableQuery
+import slick.lifted._
 import slick.model.{ Table, Column, QualifiedName }
 import scala.reflect.runtime.universe._
 import scala.reflect.runtime.{ currentMirror => cm, universe => ru }
@@ -13,11 +13,37 @@ trait Query[T] {
    * The accumulated AST in this query
    */
   protected def ast: slick.ast.Node
+  // TODO: add shape to query
 
   def toNode = ast
 
   @reifyAs(Take)
   def take(i: Int): Query[T] = ???
+
+  @reifyAs(MapQuery)
+  def map[U, V, W](f: T => U)(implicit shape: Shape[_ <: FlatShapeLevel, U, V, W]): Query[U] = ???
+
+  @reifyAs(FlatMapQuery)
+  def flatMap[U](f: T => Query[U]): Query[U] = ???
+}
+
+object MapQuery {
+  // WIP
+  def apply[T, U, V, W](self: Query[_], f: T => U): Any = {
+    val q: Query[U] = new Query[U] {
+      def ast = self.toNode
+    }
+    FlatMapQuery[T, U](self, v => q)
+  }
+}
+
+object FlatMapQuery {
+  // WIP
+  def apply[T, U](self: Query[_], f: T => Query[U]): Any = {
+    val generator = new AnonSymbol
+    val aliased =
+
+  }
 }
 
 object Query extends SlickReflectUtil {

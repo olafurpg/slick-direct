@@ -45,7 +45,7 @@ package object direct {
     def dsl[T](e: Rep[T]): T = ???
 
     def lift[T](e: T): Literal[T] = e match {
-      case n: Int => LiteralNode[Long](n)
+      case n: Int => LiteralNode(n)
       case q: Query[_] => q.toNode
       case _ => ???
     }
