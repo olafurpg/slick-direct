@@ -1,6 +1,7 @@
 package ch.epfl.lamp.slick.direct
 
 import ch.epfl.directembedding.transformers.reifyAs
+import slick.ast
 import slick.ast._
 import slick.driver.JdbcDriver
 import slick.lifted._
@@ -14,7 +15,7 @@ trait Query[T] {
    */
   protected def ast: slick.ast.Node
   type Self
-  protected def shaped: ShapedValue[T, _]
+  protected def shaped: ShapedValue[_ <: Self, _]
   // TODO: add shape to query
 
   def toNode = ast
@@ -22,8 +23,15 @@ trait Query[T] {
   @reifyAs(Take)
   def take(i: Int): Query[T] = ???
 
-  @reifyAs(MapQuery)
-  def map[U, V, W](f: T => U)(implicit shape: Shape[_ <: FlatShapeLevel, U, V, W]): Query[U] = ???
+  @reifyAs({
+    val sym = new AnonSymbol
+    def gen[U](lhs: Query[Self], f: Function1[_, U]) = new slick.ast.Bind(sym, lhs.toNode, new Query[U] {
+      def ast = ???
+      def shaped = ShapedValue[U, Nothing](f.asInstanceOf[lhs.Self => U](lhs.shaped.value), ???)
+      type Self = U
+    }.toNode)
+    gen[String] _})
+  def map[U](f: T => U): Query[U] = ???
 
   @reifyAs(FlatMapQuery)
   def flatMap[U](f: T => Query[U]): Query[U] = ???

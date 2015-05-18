@@ -9,7 +9,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
   import c.universe._
 
   override val PreProcess = new (Tree => Tree) {
-    def apply(tree: Tree) = new FieldExtractor().transform(tree)
+    def apply(tree: Tree) = tree // new FieldExtractor().transform(tree)
   }
 
   private final class FieldExtractor extends Transformer {
