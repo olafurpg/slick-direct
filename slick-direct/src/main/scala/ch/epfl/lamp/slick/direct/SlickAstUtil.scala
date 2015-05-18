@@ -1,10 +1,10 @@
 package ch.epfl.lamp.slick.direct
 
 import slick.driver.JdbcDriver
+import slick.model.{Column, Table}
 import slick.profile.SqlProfile
 import scala.reflect.runtime.universe._
 import slick.{ ast => sq }
-import slick.ast.AnonSymbol
 
 /**
  * Utility methods for dealing with the slick.ast API
@@ -13,7 +13,7 @@ import slick.ast.AnonSymbol
  */
 trait SlickAstUtil extends DirectSlickModule with SlickReflectUtil {
 
-  lazy val sq_symbol = new AnonSymbol
+  lazy val sq_symbol = new sq.AnonSymbol
 
   def mappingsForT(tt: TypeTag[_]) = sq.MappedScalaType.Mapper(_ => ???, any2instanceOfT(tt), None)
 
@@ -71,4 +71,22 @@ trait SlickAstUtil extends DirectSlickModule with SlickReflectUtil {
       sq_symbol,
       columnField(sym)
     ).nodeTyped(columnType(sym.typeSignature))
+
+
+  def tableExpansion(tt: TypeTag[_]): sq.TableExpansion = {
+    val table = getTableFromSymbol(tt.tpe.typeSymbol)
+
+    def col2node(c: Column): sq.Node = {
+      sq.Select(sq.Ref(sq_symbol), sq.FieldSymbol(c.name)(Nil, stringColumnTypes(c.tpe))).nodeTyped(stringColumnTypes(c.tpe))
+    }
+
+    val mapping = sq.TypeMapping(
+      sq.ProductNode(table.columns.map(col2node)),
+      mappingsForT(tt),
+      classTagFor(tt)
+    )
+    sq.TableExpansion(sq_symbol, tableNode(table.name.table), mapping)
+  }
 }
+
+class SlickReifier(val driver: JdbcDriver) extends SlickAstUtil

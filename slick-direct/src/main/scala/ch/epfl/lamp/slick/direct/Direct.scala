@@ -24,34 +24,11 @@ object Query extends SlickReflectUtil {
     println(table)
   }
 
-  def tableExpansion(d: JdbcDriver, table: Table, tt: TypeTag[_]): TableExpansion = {
-    val util = new SlickAstUtil {
-      override val driver: JdbcDriver = d
-    }
-    val identitySymbol = SimpleTableIdentitySymbol(d, "_", table.name.table)
-    val tableNode = util.tableNode(table.name.table)
-
-    def col2node(c: Column): Node = {
-      slick.ast.Select(Ref(util.sq_symbol), FieldSymbol(c.name)(Nil, util.stringColumnTypes(c.tpe))).nodeTyped(util.stringColumnTypes(c.tpe))
-    }
-
-    val mapping = TypeMapping(
-      ProductNode(table.columns.map(col2node).toSeq),
-      util.mappingsForT(tt),
-      classTagFor(tt)
-    )
-    TableExpansion(util.sq_symbol, tableNode, mapping)
-  }
 
   @reifyAs(TableExpansion)
   def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = new Query[T] {
-    /**
-     * The accumulated AST in this query
-     */
     override protected def ast: Node = {
-      val tt = typeTag[T]
-      val table = getTableFromSymbol(tt.tpe.typeSymbol)
-      tableExpansion(driver, table, tt)
+      new SlickReifier(driver).tableExpansion(typeTag[T])
     }
   }
 }

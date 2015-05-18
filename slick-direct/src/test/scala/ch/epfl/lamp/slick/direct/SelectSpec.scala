@@ -5,8 +5,9 @@ import org.scalatest.FlatSpec
 import slick.driver.H2Driver.api._
 
 class SelectSpec extends FlatSpec with TestHelper {
-  // 1. Closure for reifyAs annotation
-  // 2. Composition of queries (stick AST inside Query[T])
+  // 0. Stick AST into Query[T]
+  // 1. Composition of queries
+  // 2. Closure for reifyAs annotation
   // 3. Preprocessing for case classes
 
   "Query[T]" should "select *" in {

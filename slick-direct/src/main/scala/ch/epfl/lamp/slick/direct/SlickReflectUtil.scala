@@ -30,6 +30,7 @@ trait SlickReflectUtil {
         val columnName = getNameOfSymbol(param).getOrElse(cName)
         val tpe = param.typeSignature.dealias.typeSymbol.name.decodedName.toString
         // TODO: Options, nullable, etc
+        // TODO:
         Column(columnName, tableQName, tpe, false)
       }
     }
