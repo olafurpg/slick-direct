@@ -20,6 +20,10 @@ package object direct {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
+  implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag](q: Query[T]) = {
+    slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
+  }
+
 
   object Config extends Config
 

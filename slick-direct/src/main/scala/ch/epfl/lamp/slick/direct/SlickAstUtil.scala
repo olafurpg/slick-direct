@@ -1,5 +1,6 @@
 package ch.epfl.lamp.slick.direct
 
+import slick.driver.JdbcDriver
 import slick.profile.SqlProfile
 import scala.reflect.runtime.universe._
 import slick.{ ast => sq }
@@ -16,29 +17,37 @@ trait SlickAstUtil extends DirectSlickModule with SlickReflectUtil {
 
   def mappingsForT(tt: TypeTag[_]) = sq.MappedScalaType.Mapper(_ => ???, any2instanceOfT(tt), None)
 
-  val columnTypes = {
+  lazy val columnTypes: Map[Symbol, driver.DriverJdbcType[_]] = {
     import driver.columnTypes._
     Map( // FIXME use symbols instead of strings for type names here
       typeOf[Int].typeSymbol -> intJdbcType, typeOf[Double].typeSymbol -> doubleJdbcType, typeOf[String].typeSymbol -> stringJdbcType, typeOf[Boolean].typeSymbol -> booleanJdbcType
     )
   }
 
-  def columnType( tpe:Type ) = {
+  lazy val stringColumnTypes: Map[String, driver.DriverJdbcType[_]] = {
+    import driver.columnTypes._
+    Map(
+      "Int" -> intJdbcType,
+      "String" -> stringJdbcType
+    )
+  }
+
+  def columnType(tpe: Type) = {
     val underlying = columnTypes(underlyingTypeSymbol(tpe))
-    if( isNullable(tpe) ){
+    if (isNullable(tpe)) {
       underlying.optionType
-    } else {
+    }
+    else {
       underlying
     }
   }
 
   def columnField(name: String, typ: driver.DriverJdbcType[_]): sq.FieldSymbol = sq.FieldSymbol(name)(Nil, typ)
 
-  private def columnField( sym:Symbol ) =
-    sq.FieldSymbol( columnName(sym) )(
-      if( isNullable(sym) ) List(SqlProfile.ColumnOption.Nullable)
-      else List()
-      , columnType(sym.typeSignature)
+  private def columnField(sym: Symbol) =
+    sq.FieldSymbol(columnName(sym))(
+      if (isNullable(sym)) List(SqlProfile.ColumnOption.Nullable)
+      else List(), columnType(sym.typeSignature)
     )
 
   def tableIdentity(name: String) = sq.SimpleTableIdentitySymbol(driver, "_", name)
@@ -57,9 +66,9 @@ trait SlickAstUtil extends DirectSlickModule with SlickReflectUtil {
   def selectMember(member: Symbol) =
     columnSelect(member, sq.Ref(sq_symbol))
 
-  def columnSelect( sym:Symbol, sq_symbol:sq.Node ) =
+  def columnSelect(sym: Symbol, sq_symbol: sq.Node) =
     sq.Select(
       sq_symbol,
       columnField(sym)
-    ).nodeTyped( columnType(sym.typeSignature) )
+    ).nodeTyped(columnType(sym.typeSignature))
 }

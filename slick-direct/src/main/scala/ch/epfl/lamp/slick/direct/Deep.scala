@@ -5,7 +5,7 @@ import slick.{ ast => sq }
 
 import scala.reflect.runtime.universe.TypeTag
 
-sealed trait SlickQuery[T] extends Query[T] {
+sealed trait SlickQuery[T] {
 
   def toNode(implicit driver: JdbcDriver): sq.Node = {
     new SlickQueryMapper(driver).toNode(this)

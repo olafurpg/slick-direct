@@ -1,57 +1,57 @@
 package ch.epfl.lamp.slick.direct
 
 import ch.epfl.directembedding.transformers.reifyAs
-import slick.model.{Table, Column, QualifiedName}
+import slick.ast._
+import slick.driver.JdbcDriver
+import slick.lifted.TableQuery
+import slick.model.{ Table, Column, QualifiedName }
 import scala.reflect.runtime.universe._
 import scala.reflect.runtime.{ currentMirror => cm, universe => ru }
-import slick.ast
-
 
 trait Query[T] {
-  protected def ast: SlickQuery[T] = EmptyQuery()
-//  @reifyAs(Take)
-//  def take(i: Int): Query[T] = ???
-
+  /**
+   * The accumulated AST in this query
+   */
+  protected def ast: slick.ast.Node
+  def toNode = ast
 }
 
-object Query {
+object Query extends SlickReflectUtil {
 
-  /**
-   * Map class definition to slick.model.Table
-   */
-  private def getTableFromSymbol(classDefSymbol: Symbol): Table = {
-    def getNameOfSymbol(symbol: Symbol): Option[String] = {
-      // workaround for SI-7424
-      symbol.typeSignature
-      symbol.annotations.foreach(_.tree.tpe)
-      symbol.annotations.headOption.map(x => x.tree.children.tail.head).flatMap(annotationToName)
-    }
-    def annotationToName(tree: Tree): Option[String] = tree match {
-      case Literal(Constant(name: String)) => Some(name)
-      case _ => None
-    }
-    val tName = classDefSymbol.name.toString()
-    val tableName = getNameOfSymbol(classDefSymbol).getOrElse(tName)
-    val tableQName = QualifiedName(tableName)
-    val columns = classDefSymbol.typeSignature.member(ru.termNames.CONSTRUCTOR).typeSignature match {
-      case MethodType(params, resultType) => params map { param =>
-        val cName = param.name.toString()
-        val columnName = getNameOfSymbol(param).getOrElse(cName)
-        val tpe = param.typeSignature.dealias.typeSymbol.name.decodedName.toString
-        // TODO: Options, nullable, etc
-        Column(columnName, tableQName, tpe, false)
-      }
-    }
-    // TODO: Indices and FK
-    Table(tableQName, columns, None, Nil, Nil)
-  }
-
-  def getTable[T:TypeTag]: Unit = {
+  def getTable[T: TypeTag]: Unit = {
     val tt = typeTag[T]
     val table = getTableFromSymbol(tt.tpe.typeSymbol)
     println(table)
   }
 
-  @reifyAs(ast.TableExpansion)
-  def apply[T]: Query[T] = ???
+  def tableExpansion(d: JdbcDriver, table: Table, tt: TypeTag[_]): TableExpansion = {
+    val util = new SlickAstUtil {
+      override val driver: JdbcDriver = d
+    }
+    val identitySymbol = SimpleTableIdentitySymbol(d, "_", table.name.table)
+    val tableNode = util.tableNode(table.name.table)
+
+    def col2node(c: Column): Node = {
+      slick.ast.Select(Ref(util.sq_symbol), FieldSymbol(c.name)(Nil, util.stringColumnTypes(c.tpe))).nodeTyped(util.stringColumnTypes(c.tpe))
+    }
+
+    val mapping = TypeMapping(
+      ProductNode(table.columns.map(col2node).toSeq),
+      util.mappingsForT(tt),
+      classTagFor(tt)
+    )
+    TableExpansion(util.sq_symbol, tableNode, mapping)
+  }
+
+  @reifyAs(TableExpansion)
+  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = new Query[T] {
+    /**
+     * The accumulated AST in this query
+     */
+    override protected def ast: Node = {
+      val tt = typeTag[T]
+      val table = getTableFromSymbol(tt.tpe.typeSymbol)
+      tableExpansion(driver, table, tt)
+    }
+  }
 }
