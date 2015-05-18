@@ -31,6 +31,8 @@ package object direct {
     with VirtualizationOverrides {
     // We transform them manually in PostProcessing
     override val virtualizeFunctions: Boolean = false
+    override val embedFunctions: Boolean = true
+    override val flattenCurriedFunctions: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
     type Literal[T] = slick.ast.Node
@@ -48,6 +50,7 @@ package object direct {
 
     def lift[T](e: T): Literal[T] = e match {
       case n: Int => LiteralNode(n)
+      case n: String => LiteralNode(n)
       case q: Query[_] => q.toNode
       case _ => ???
     }
@@ -67,13 +70,14 @@ package object direct {
       liftRep(true)(c)(block)
 
     def liftRep[T](debug: Boolean)(c: blackbox.Context)(block: c.Expr[T]): c.Expr[T] = {
-      val postProcessing = new ProjectionProcessing[c.type](c)
+      val preProcessing = new ProjectionProcessing[c.type](c)
       DETransformer[c.type, T, Config](c)(
         "slick-direct",
         DslConfig,
         Map.empty,
+        Set(c.typeOf[Query[_]]),
+        Some(preProcessing),
         None,
-        Some(postProcessing),
         debug
       ).apply(block)
     }
