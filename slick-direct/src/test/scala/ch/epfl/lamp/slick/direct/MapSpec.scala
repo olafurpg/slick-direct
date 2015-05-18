@@ -1,38 +1,52 @@
 package ch.epfl.lamp.slick.direct
 
+import ch.epfl.lamp.slick.direct
 import org.scalatest.FlatSpec
 import slick.driver.H2Driver.api._
 
 class MapSpec extends FlatSpec with TestHelper {
 
-  "Query.map" should "reify on User.name" in {
-    val dUsers = Query[User]
+  "Query[T].map" should "work with string column" in {
+    val users = Query[User]
     equalQueries(
-      query {
-        dUsers.map(u => u.name)
+      queryDebug {
+        users.map(u => u.name)
       }.result,
-      users.map(_.name).result
+      liftedUsers.map(u => u.name).result
     )
   }
 
-  it should "reify on User.id" in {
-    val dUsers = Query[User]
+  "Query[T].map" should "work with int column" in {
+    val users = Query[User]
     equalQueries(
-      query {
-        dUsers.map(u => u.id)
+      queryDebug {
+        users.map(u => u.id)
       }.result,
-      users.map(_.id).result
+      liftedUsers.map(u => u.id).result
     )
   }
 
-  it should "reify on Car.id" in {
-    val dCars = Query[Car]
-    equalQueries(
-      query {
-        dCars.map(u => u.id)
-      }.result,
-      cars.map(_.id).result
-    )
-  }
+  // TODO: Problem with root driver.Table reference
+//  "Query[T].map" should "work with string column extension methods" in {
+//    val users = Query[User]
+//    equalQueries(
+//      queryDebug {
+//        users.map(u => u.name + " Cool")
+//      }.result,
+//      liftedUsers.map(u => u.name + " Cool").result
+//    )
+//  }
+
+
+  // TODO: Type rewrite for product types
+  //  "Query[T].map" should "work with tuple selection" in {
+  //    val users = Query[User]
+  //    equalQueries(
+  //      queryDebug {
+  //        users.map(u => (u.name, u.id))
+  //      }.result,
+  //      liftedUsers.map(u => (u.name, u.id)).result
+  //    )
+  //  }
 
 }

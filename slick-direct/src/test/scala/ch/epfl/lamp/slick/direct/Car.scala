@@ -11,6 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.runtime.universe.TypeTag
 
 case class Car(id: Int, name: String, ownerId: Int)
+
 class Cars(tag: Tag)
   extends Table[Car](tag, "Car") {
 

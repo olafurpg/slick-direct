@@ -9,22 +9,22 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait TestHelper extends FlatSpec {
-  val users = TableQuery[Users]
-  val cars = TableQuery[Cars]
+  val liftedUsers = TableQuery[Users]
+  val liftedCars = TableQuery[Cars]
 
   type DB = H2Driver.backend.DatabaseDef
 
-  def withDb(testCode: DB => Future[Boolean]): Unit = {
+  def withDb[T](testCode: DB => Future[(T, T)]): Unit = {
     val db = Database.forConfig("h2mem1")
     try {
       val create: DBIO[Unit] = DBIO.seq(
-        users.schema.create,
-        cars.schema.create,
-        users ++= Seq(
+        liftedUsers.schema.create,
+        liftedCars.schema.create,
+        liftedUsers ++= Seq(
           User(1, "Olafur"),
           User(2, "Vojin")
         ),
-        cars ++= Seq(
+        liftedCars ++= Seq(
           Car(1, "Ford Taurus", 1),
           Car(2, "Auris", 1)
         )
@@ -33,7 +33,9 @@ trait TestHelper extends FlatSpec {
         setup <- db.run(create)
         result <- testCode(db)
       } yield result
-      assert(Await.result(f, Duration.Inf) === true)
+      val (expected, obtained) = Await.result(f, Duration.Inf)
+      println(s"expected=$expected obtained=$obtained")
+      assert(expected === obtained)
     }
     finally db.close()
   }
@@ -42,6 +44,6 @@ trait TestHelper extends FlatSpec {
     for {
       direct <- db.run(directQ)
       lifted <- db.run(liftedQ)
-    } yield direct == lifted
+    } yield (direct, lifted)
   }
 }
