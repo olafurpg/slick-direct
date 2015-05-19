@@ -21,7 +21,7 @@ package object direct {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
-  implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag](q: Query[T]) = {
+  implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag](q: direct.Query[T]) = {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
@@ -35,23 +35,21 @@ package object direct {
     override val flattenCurriedFunctions: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
-    type Literal[T] = slick.ast.Node
-    type Rep[T] = slick.ast.Node
+    type Literal[T] = slick.lifted.Rep[T]
+    type Rep[T] = slick.lifted.Query[T, _, Seq[_]]
 
     // TODO: Do we want the result to be from slick.ast?
-    def compile[T](e: slick.ast.Node): Query[T] =
+    def compile[T](e: Rep[T]): direct.Query[T] =
       new Query[T] {
-        def ast = e
+        def ast = ???
         def lift = ???
         type Self = T
       }
 
     def dsl[T](e: Rep[T]): T = ???
 
-    def lift[T](e: T): Literal[T] = e match {
-      case n: Int => LiteralNode(n)
-      case n: String => LiteralNode(n)
-      case q: Query[_] => q.toNode
+    def lift[T](e: T): Rep[T] = e match {
+      case q: direct.Query[_] => q.lift
       case _ => ???
     }
   }
@@ -75,7 +73,8 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map.empty,
-        Set(c.typeOf[Query[_]]),
+//        Set(c.typeOf[Query[_]]),
+        Set.empty,
         Some(preProcessing),
         None,
         debug
