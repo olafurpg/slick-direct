@@ -23,15 +23,8 @@ trait Query[T] {
   @reifyAs(Take)
   def take(i: Int): Query[T] = ???
 
-  @reifyAs({
-    val sym = new AnonSymbol
-    def gen[U](lhs: Query[Self], f: Function1[_, U]) = new slick.ast.Bind(sym, lhs.toNode, new Query[U] {
-      def ast = ???
-      def shaped = ShapedValue[U, Nothing](f.asInstanceOf[lhs.Self => U](lhs.shaped.value), ???)
-      type Self = U
-    }.toNode)
-    gen[String] _})
-  def map[U](f: T => U): Query[U] = ???
+  @reifyAs(SlickReification.map _)
+  def map(f: T => String): Query[String] = ???
 
   @reifyAs(FlatMapQuery)
   def flatMap[U](f: T => Query[U]): Query[U] = ???
@@ -56,6 +49,18 @@ object FlatMapQuery {
 
     ???
   }
+}
+
+object SlickReification extends SlickReflectUtil {
+  def map(lhs: Query[_], f: Function1[_, _]): Node = {
+    val q = new Query[String] {
+      def ast = lhs.toNode
+      def shaped = ShapedValue(f.asInstanceOf[Node => String](lhs.toNode), ???)
+      type Self = String
+    }
+    new slick.ast.Bind(new AnonSymbol, lhs.toNode, q.toNode)
+  }
+
 }
 
 object Query extends SlickReflectUtil {
