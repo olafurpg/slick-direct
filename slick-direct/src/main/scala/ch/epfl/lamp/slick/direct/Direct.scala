@@ -14,8 +14,8 @@ trait Query[T] {
    * The accumulated AST in this query
    */
   protected def ast: slick.ast.Node
+  def lift: slick.lifted.Query[Rep[T], _, Seq]
   type Self
-  protected def shaped: ShapedValue[_ <: Self, _]
   // TODO: add shape to query
 
   def toNode = ast
@@ -34,9 +34,9 @@ object MapQuery {
   // WIP
   def apply[U, V, W](self: Query[_])(f: self.Self => U): Any = {
     val q: Query[U] = new Query[U] {
-      def shaped = ???
       type Self = U
       def ast = self.toNode
+      def lift = ???
     }
     FlatMapQuery[self.Self, U](self, v => q)
   }
@@ -55,7 +55,7 @@ object SlickReification extends SlickReflectUtil {
   def map(lhs: Query[_], f: Function1[_, _]): Node = {
     val q = new Query[String] {
       def ast = lhs.toNode
-      def shaped = ShapedValue(f.asInstanceOf[Node => String](lhs.toNode), ???)
+      def lift = ???
       type Self = String
     }
     new slick.ast.Bind(new AnonSymbol, lhs.toNode, q.toNode)
@@ -65,18 +65,30 @@ object SlickReification extends SlickReflectUtil {
 
 object Query extends SlickReflectUtil {
 
-  def getTable[T: TypeTag]: Unit = {
+  def getTable[T: TypeTag]: slick.model.Table = {
     val tt = typeTag[T]
     val table = getTableFromSymbol(tt.tpe.typeSymbol)
     println(table)
+    table
   }
 
   @reifyAs(TableExpansion)
-  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = new Query[T] {
-    override protected def ast: Node = {
-      new SlickReifier(driver).tableExpansion(typeTag[T])
+  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = {
+    val table = getTable[T]
+    new Query[T] {
+      override protected def ast: Node = {
+        new SlickReifier(driver).tableExpansion(typeTag[T])
+      }
+      class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
+        def * = ??? // We override toNode
+      }
+
+      def lift = {
+        new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
+          override lazy val toNode = ast
+        }
+      }
+      type Self = T
     }
-    type Self = T
-    def shaped = ???
   }
 }

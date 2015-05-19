@@ -42,8 +42,8 @@ package object direct {
     def compile[T](e: slick.ast.Node): Query[T] =
       new Query[T] {
         def ast = e
+        def lift = ???
         type Self = T
-        def shaped = ???
       }
 
     def dsl[T](e: Rep[T]): T = ???

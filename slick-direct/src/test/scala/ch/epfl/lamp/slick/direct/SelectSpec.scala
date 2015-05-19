@@ -9,12 +9,12 @@ class SelectSpec extends FlatSpec with TestHelper {
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-//  "Query[T]" should "select *" in {
+  "Query[T]" should "select *" in {
 //    direct.Query.getTable[User]
-//    equalQueries(
-//      Query[User].result,
-//      liftedUsers.result
-//    )
-//  }
+    equalQueries(
+      Query[User].lift.result,
+      liftedUsers.result
+    )
+  }
 
 }
