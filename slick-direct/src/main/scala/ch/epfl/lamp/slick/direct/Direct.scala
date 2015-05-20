@@ -17,7 +17,7 @@ trait Query[T] {
   type Self = T
   // TODO: add shape to query
 
-  @reifyAs(Take)
+  @reifyAs(SlickReification.take _)
   def take(i: Int): Query[T] = ???
 
   def map(f: T => String): Query[String] = ???
@@ -27,6 +27,11 @@ trait Query[T] {
 
 
 object SlickReification extends SlickReflectUtil {
+  def take(self: Any, i: Any): QueryBase[_] = {
+    println(self)
+    println(i)
+    ???
+  }
 //  def map(lhs: Query[_], f: Function1[_, _]): Node = {
 //    val q = new Query[String] {
 //      def ast = lhs.toNode

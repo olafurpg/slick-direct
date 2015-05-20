@@ -16,7 +16,7 @@ package object direct {
 
   def DIRECT_INTERNAL[T](msg: => T): Nothing = {
     println(msg)
-    throw new NotImplementedError(s"msg")
+    throw new NotImplementedError(s"$msg")
   }
 
   def query[T](block: T): T = macro implementations.lift[T]
@@ -55,6 +55,7 @@ package object direct {
 
     def lift[T](e: T): Rep[T] = e match {
       case q: direct.Query[_] => q.lift
+      case n: Int => ???
       case _ => {
         DIRECT_INTERNAL(e)
         ???

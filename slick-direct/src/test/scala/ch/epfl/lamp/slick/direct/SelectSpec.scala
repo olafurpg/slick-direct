@@ -14,7 +14,7 @@ class SelectSpec extends FlatSpec with TestHelper {
 //    val users = Query[User]
 //    queryDebug {
 //      users
-//    }.lift.result
+//   t }.lift.result
     equalQueries(
       Query[User].lift.result,
       liftedUsers.result
