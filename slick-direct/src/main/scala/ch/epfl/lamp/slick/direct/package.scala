@@ -1,7 +1,7 @@
 package ch.epfl.lamp.slick
 
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
-import slick.ast.LiteralNode
+import slick.ast.{TypedType, LiteralNode}
 import slick.dbio.NoStream
 import slick.lifted
 
@@ -32,6 +32,8 @@ package object direct {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
+  implicit def query2rep[T](q: direct.Query[T]): lifted.Rep[T] = q.lift
+
   object Config extends Config
 
   trait Config extends DslConfig
@@ -42,8 +44,8 @@ package object direct {
     override val flattenCurriedFunctions: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
-    type Literal[T] = slick.lifted.QueryBase[_]
-    type Rep[T] = slick.lifted.QueryBase[_]
+    type Literal[T] = slick.lifted.Rep[T]
+    type Rep[T] = slick.lifted.Rep[T]
 
     // TODO: Do we want the result to be from slick.ast?
     def compile[T](e: Rep[T]): direct.Query[T] =
@@ -54,8 +56,9 @@ package object direct {
     def dsl[T](e: Rep[T]): T = ???
 
     def lift[T](e: T): Rep[T] = e match {
-      case q: direct.Query[_] => q.lift
-      case n: Int => ???
+      // TODO: Erasure issue?
+      case q: direct.Query[T] => q.lift
+      case n: Long => new LiteralColumn(n).asInstanceOf[Rep[T]] // WTF? LiteralColumn[T] <: Rep[T]
       case _ => {
         DIRECT_INTERNAL(e)
         ???

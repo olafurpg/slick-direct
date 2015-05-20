@@ -1,7 +1,8 @@
 package ch.epfl.lamp.slick.direct
 
 import ch.epfl.directembedding.transformers.reifyAs
-import slick.ast
+import ch.epfl.lamp.slick.direct
+import slick.{lifted, ast}
 import slick.ast._
 import slick.driver.JdbcDriver
 import slick.lifted._
@@ -13,7 +14,7 @@ trait Query[T] {
   /**
    * The accumulated AST in this query
    */
-  def lift: slick.lifted.QueryBase[_]
+  def lift: slick.lifted.Rep[T]
   type Self = T
   // TODO: add shape to query
 
@@ -25,20 +26,16 @@ trait Query[T] {
   def flatMap[U](f: T => Query[U]): Query[U] = ???
 }
 
-
 object SlickReification extends SlickReflectUtil {
-  def take(self: Any, i: Any): QueryBase[_] = {
-    println(self)
-    println(i)
-    ???
+  def take[T, C[_]](self: lifted.Rep[direct.Query[C[T]]] , i: lifted.Rep[Long]): lifted.Rep[C[T]] = {
+    // This casting is necessary, because we loose so much information by lifting everything to Rep[T]
+    self.asInstanceOf[lifted.Query[AbstractTable[T], T, C]].take(i.asInstanceOf[ConstColumn[Long]])
   }
-//  def map(lhs: Query[_], f: Function1[_, _]): Node = {
-//    val q = new Query[String] {
-//      def ast = lhs.toNode
-//      def lift = ???
-//      type Self = String
-//    }
-//    new slick.ast.Bind(new AnonSymbol, lhs.toNode, q.toNode)
+
+  // This does not compile because lift(e: T): Rep[T]
+//  def take[T, C[_]](self: lifted.Query[AbstractTable[T], T, C], i: ConstColumn[Long]): lifted.Rep[C[T]] = {
+//    // This casting is necessary, because we loose so much information by lifting everything to Rep[T]
+//    self.take(i)
 //  }
 
 }
@@ -48,18 +45,18 @@ object Query extends SlickReflectUtil {
   def getTable[T: TypeTag]: slick.model.Table = {
     val tt = typeTag[T]
     val table = getTableFromSymbol(tt.tpe.typeSymbol)
-    println(table)
+//    println(table)
     table
   }
 
   @reifyAs(TableExpansion)
-  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T] = {
+  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[Seq[T]] = {
     val table = getTable[T]
-    new Query[T] {
+    new Query[Seq[T]] {
+
       class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
         def * = ??? // We override toNode
       }
-
       def lift = {
         new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
           override lazy val toNode = new SlickReifier(driver).tableExpansion(typeTag[T])

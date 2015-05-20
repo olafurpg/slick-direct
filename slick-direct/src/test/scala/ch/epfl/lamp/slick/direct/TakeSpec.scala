@@ -13,7 +13,6 @@ class TakeSpec extends FlatSpec with TestHelper {
   "Query[T].take" should "work" in {
     direct.Query.getTable[User]
     val users = Query[User]
-
     equalQueries(
       queryDebug {
         users.take(1)
@@ -21,5 +20,17 @@ class TakeSpec extends FlatSpec with TestHelper {
       liftedUsers.take(1).result
     )
   }
+  
+  // Problem
+//  "Query[T].take(1).take(1)" should "work" in {
+//    direct.Query.getTable[User]
+//    val users = Query[User]
+//    equalQueries(
+//      queryDebug {
+//        users.take(2).take(1)
+//      }.result,
+//      liftedUsers.take(2).take(1).result
+//    )
+//  }
 
 }

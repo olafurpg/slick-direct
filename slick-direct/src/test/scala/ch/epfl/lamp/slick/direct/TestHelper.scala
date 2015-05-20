@@ -34,6 +34,7 @@ trait TestHelper extends FlatSpec {
         result <- testCode(db)
       } yield result
       val (expected, obtained) = Await.result(f, Duration.Inf)
+      println(s"expected=$expected obtained=$obtained")
       assert(expected === obtained)
     }
     finally db.close()
