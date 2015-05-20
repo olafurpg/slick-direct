@@ -13,12 +13,12 @@ class MapSpec extends FlatSpec with TestHelper {
     direct.Query.getTable[User]
     val users = Query[User]
 
-    equalQueries(
-      queryDebug {
-        users.map(_.name)
-      }.result,
-      liftedUsers.map(_.name).result
-    )
+//    equalQueries(
+//      queryDebug {
+//        users.map(_.name)
+//      }.result,
+//      liftedUsers.map(_.name).result
+//    )
   }
 
 }

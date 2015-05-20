@@ -11,14 +11,14 @@ class SelectSpec extends FlatSpec with TestHelper {
 
   "Query[T]" should "select *" in {
 //    direct.Query.getTable[User]
-    val users = Query[User]
-    queryDebug {
-      users
-    }
-//    equalQueries(
-//      Query[User].lift.result,
-//      liftedUsers.result
-//    )
+//    val users = Query[User]
+//    queryDebug {
+//      users
+//    }.lift.result
+    equalQueries(
+      Query[User].lift.result,
+      liftedUsers.result
+    )
   }
 
 }
