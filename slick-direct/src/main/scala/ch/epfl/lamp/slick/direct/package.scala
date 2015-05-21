@@ -12,9 +12,9 @@ import scala.reflect.runtime.universe.TypeTag
 
 package object direct {
 
-  def DIRECT_INTERNAL: Nothing = ???
+  def INTERNAL: Nothing = ???
 
-  def DIRECT_INTERNAL[T](msg: => T): Nothing = {
+  def INTERNAL[T](msg: => T): Nothing = {
     println(msg)
     throw new NotImplementedError(s"$msg")
   }
@@ -50,19 +50,29 @@ package object direct {
     // TODO: Do we want the result to be from slick.ast?
     def compile[T](e: Rep[T]): direct.Query[T] =
       new Query[T] {
-        def lift = e
+        def lift = e.asInstanceOf[lifted.QueryBase[T]]
       }
 
     def dsl[T](e: Rep[T]): T = ???
+
+    def constColumnLift[T](e: T): ConstColumn[T] = e match {
+      // TODO: Erasure issue?
+      case n: Int => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
+      case n: Long => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
+      case _ => INTERNAL(e)
+    }
+
+    def directQueryLift[T](e: T): lifted.QueryBase[T] = e match {
+      case q: direct.Query[T] => q.lift
+      // TODO: Erasure issue?
+      case _ => INTERNAL(e)
+    }
 
     def lift[T](e: T): Rep[T] = e match {
       // TODO: Erasure issue?
       case q: direct.Query[T] => q.lift
       case n: Long => new LiteralColumn(n).asInstanceOf[Rep[T]] // WTF? LiteralColumn[T] <: Rep[T]
-      case _ => {
-        DIRECT_INTERNAL(e)
-        ???
-      }
+      case _ => INTERNAL(e)
     }
   }
 

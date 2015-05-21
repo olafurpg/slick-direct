@@ -14,7 +14,7 @@ trait Query[T] {
   /**
    * The accumulated AST in this query
    */
-  def lift: slick.lifted.Rep[T]
+  def lift: slick.lifted.QueryBase[T]
   type Self = T
   // TODO: add shape to query
 
@@ -27,9 +27,9 @@ trait Query[T] {
 }
 
 object SlickReification extends SlickReflectUtil {
-  def take[T, C[_]](self: lifted.Rep[direct.Query[C[T]]] , i: lifted.Rep[Long]): lifted.Rep[C[T]] = {
+  def take[T, C[_]](self: lifted.Rep[direct.Query[C[T]]] , i: lifted.ConstColumn[Long]): lifted.Rep[C[T]] = {
     // This casting is necessary, because we loose so much information by lifting everything to Rep[T]
-    self.asInstanceOf[lifted.Query[AbstractTable[T], T, C]].take(i.asInstanceOf[ConstColumn[Long]])
+    self.asInstanceOf[lifted.Query[AbstractTable[T], T, C]].take(i)
   }
 
   // This does not compile because lift(e: T): Rep[T]
