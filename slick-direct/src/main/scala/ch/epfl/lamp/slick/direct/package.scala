@@ -1,9 +1,10 @@
 package ch.epfl.lamp.slick
 
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
-import slick.ast.{TypedType, LiteralNode}
+import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
 import slick.lifted
+import slick.lifted.AbstractTable
 
 import scala.reflect.macros.{ Universe, Context, blackbox }
 
@@ -28,11 +29,11 @@ package object direct {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
-  implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag](q: direct.Query[T]) = {
+  implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag, C[_]](q: direct.Query[T, C]) = {
     slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
   }
 
-  implicit def query2rep[T](q: direct.Query[T]): lifted.Rep[T] = q.lift
+  implicit def query2rep[T, C[_]](q: direct.Query[T, C]): lifted.Rep[C[T]] = q.lift
 
   object Config extends Config
 
@@ -48,9 +49,10 @@ package object direct {
     type Rep[T] = slick.lifted.Rep[T]
 
     // TODO: Do we want the result to be from slick.ast?
-    def compile[T](e: Rep[T]): direct.Query[T] =
-      new Query[T] {
-        def lift = e.asInstanceOf[lifted.QueryBase[T]]
+    def compile[T, C[_]](e: Rep[C[T]]): direct.Query[T, C] =
+      new Query[T, C] {
+        // This cast must succeed
+        def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
       }
 
     def dsl[T](e: Rep[T]): T = ???
@@ -62,15 +64,10 @@ package object direct {
       case _ => INTERNAL(e)
     }
 
-    def directQueryLift[T](e: T): lifted.QueryBase[T] = e match {
-      case q: direct.Query[T] => q.lift
-      // TODO: Erasure issue?
-      case _ => INTERNAL(e)
-    }
+    def directQueryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[AbstractTable[T], T, C] = e.lift
 
     def lift[T](e: T): Rep[T] = e match {
       // TODO: Erasure issue?
-      case q: direct.Query[T] => q.lift
       case n: Long => new LiteralColumn(n).asInstanceOf[Rep[T]] // WTF? LiteralColumn[T] <: Rep[T]
       case _ => INTERNAL(e)
     }
@@ -95,6 +92,10 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map.empty,
+        Map(
+          // TODO: Can we avoid hardcoding Seq here?
+          c.typeOf[Int] -> "constColumnLift", c.typeOf[direct.Query[_, Seq]] -> "directQueryLift"
+        ),
         //        Set(c.typeOf[Query[_]]),
         Set.empty,
         Some(preProcessing),

@@ -10,34 +10,26 @@ import slick.model.{ Table, Column, QualifiedName }
 import scala.reflect.runtime.universe._
 import scala.reflect.runtime.{ currentMirror => cm, universe => ru }
 
-trait Query[T] {
+trait Query[T, C[_]] {
   /**
    * The accumulated AST in this query
    */
-  def lift: slick.lifted.QueryBase[T]
+  def lift: slick.lifted.Query[AbstractTable[T], T, C]
+
   type Self = T
   // TODO: add shape to query
 
   @reifyAs(SlickReification.take _)
-  def take(i: Int): Query[T] = ???
+  def take(i: Int): Query[T, C] = ???
 
-  def map(f: T => String): Query[String] = ???
+  def map[U](f: T => U): Query[U, C] = ???
 
-  def flatMap[U](f: T => Query[U]): Query[U] = ???
 }
 
 object SlickReification extends SlickReflectUtil {
-  def take[T, C[_]](self: lifted.Rep[direct.Query[C[T]]] , i: lifted.ConstColumn[Long]): lifted.Rep[C[T]] = {
-    // This casting is necessary, because we loose so much information by lifting everything to Rep[T]
-    self.asInstanceOf[lifted.Query[AbstractTable[T], T, C]].take(i)
+  def take[T, C[_]](self: lifted.Query[AbstractTable[T], T, C] , i: lifted.ConstColumn[Long]): lifted.Query[AbstractTable[T], T, C] = {
+    self.take(i)
   }
-
-  // This does not compile because lift(e: T): Rep[T]
-//  def take[T, C[_]](self: lifted.Query[AbstractTable[T], T, C], i: ConstColumn[Long]): lifted.Rep[C[T]] = {
-//    // This casting is necessary, because we loose so much information by lifting everything to Rep[T]
-//    self.take(i)
-//  }
-
 }
 
 object Query extends SlickReflectUtil {
@@ -50,9 +42,9 @@ object Query extends SlickReflectUtil {
   }
 
   @reifyAs(TableExpansion)
-  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[Seq[T]] = {
+  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T, Seq] = {
     val table = getTable[T]
-    new Query[Seq[T]] {
+    new Query[T, Seq] {
 
       class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
         def * = ??? // We override toNode
