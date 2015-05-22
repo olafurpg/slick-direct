@@ -13,6 +13,7 @@ import scala.reflect.runtime.universe.TypeTag
 
 case class User(id: Int, name: String)
 
+
 class Users(tag: Tag)
   extends Table[User](tag, "User") {
 

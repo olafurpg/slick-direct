@@ -9,11 +9,9 @@ class TakeSpec extends FlatSpec with TestHelper {
   // 1. Closure for reifyAs annotation
   // 2. Composition of queries
   // 3. Preprocessing for case classes
-
   "Query[T].take" should "work with take(1)" in {
-    direct.Query.getTable[User]
     val users = Query[User]
-
+    users.lift
     equalQueries(
       queryDebug {
         users.take(1)
@@ -23,7 +21,6 @@ class TakeSpec extends FlatSpec with TestHelper {
   }
 
   it should "work with take(2).take(1)" in {
-    direct.Query.getTable[User]
     val users = Query[User]
     equalQueries(
       queryDebug {

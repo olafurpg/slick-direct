@@ -94,7 +94,9 @@ package object direct {
         Map.empty,
         Map(
           // TODO: Can we avoid hardcoding Seq here?
-          c.typeOf[Int] -> "constColumnLift", c.typeOf[direct.Query[_, Seq]] -> "directQueryLift"
+          c.typeOf[Int] -> "constColumnLift",
+          c.typeOf[Long] -> "constColumnLift",
+          c.typeOf[direct.Query[_, Seq]] -> "directQueryLift"
         ),
         //        Set(c.typeOf[Query[_]]),
         Set.empty,
