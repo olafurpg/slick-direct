@@ -64,11 +64,9 @@ package object direct {
       case _ => INTERNAL(e)
     }
 
-    def directQueryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[AbstractTable[T], T, C] = e.lift
+    def queryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[e.E, T, C] = e.lift
 
     def lift[T](e: T): Rep[T] = e match {
-      // TODO: Erasure issue?
-      case n: Long => new LiteralColumn(n).asInstanceOf[Rep[T]] // WTF? LiteralColumn[T] <: Rep[T]
       case _ => INTERNAL(e)
     }
   }
@@ -96,13 +94,13 @@ package object direct {
           // TODO: Can we avoid hardcoding Seq here?
           c.typeOf[Int] -> "constColumnLift",
           c.typeOf[Long] -> "constColumnLift",
-          c.typeOf[direct.Query[_, Seq]] -> "directQueryLift"
+          c.typeOf[direct.Query[_, Seq]] -> "queryLift"
         ),
         //        Set(c.typeOf[Query[_]]),
         Set.empty,
         Some(preProcessing),
         None,
-        debug
+        if (debug) 4 else 0
       ).apply(block)
     }
   }
