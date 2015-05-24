@@ -1,6 +1,6 @@
 package ch.epfl.lamp.slick.direct
 
-import ch.epfl.directembedding.transformers.reifyAs
+import ch.epfl.directembedding.transformers.{preserveInvocation, reifyAs}
 import ch.epfl.lamp.slick.direct
 import slick.{ lifted, ast }
 import slick.ast._
@@ -20,22 +20,12 @@ trait Query[T, C[_]] {
   type Self = T
   // TODO: add shape to query
 
-  @reifyAs(SlickReification.take _)
+  @preserveInvocation
   def take(i: Long): Query[T, C] = ???
 
-  @reifyAs(SlickReification.map _)
+  @preserveInvocation
   def map[U](f: T => U): Query[U, C] = ???
 
-}
-
-object SlickReification extends SlickReflectUtil {
-  def take[T, C[_], E](self: lifted.Query[E, T, C], i: lifted.ConstColumn[Long]): lifted.Query[E, T, C] = {
-    self.take(i)
-  }
-
-  def map[E, U, C[_], F, G, T](self: lifted.Query[E, U, C], f: E => F): lifted.Query[G, T, C] = {
-    self.map(f)(???)
-  }
 }
 
 object Query extends SlickReflectUtil {
