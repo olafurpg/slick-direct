@@ -72,6 +72,7 @@ package object direct {
     def lift[T](e: T): Rep[T] = e match {
       case _: Rep[T] => e.asInstanceOf[Rep[T]]
       case s: String => SlickColField[T](s)
+      case b: Boolean => new LiteralColumn(b).asInstanceOf[Rep[T]]
       case _ => INTERNAL(e)
     }
   }
