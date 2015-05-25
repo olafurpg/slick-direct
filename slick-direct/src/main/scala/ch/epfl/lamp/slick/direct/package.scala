@@ -23,17 +23,11 @@ package object direct {
   def query[T](block: T): T = macro implementations.lift[T]
   def queryDebug[T](block: T): T = macro implementations.liftDebug[T]
 
-  implicit def lit2const[T](e: T): Const[T] = Const(e)
-
-  implicit def createQueryActionExtensionMethodsFromSlickQuery[T: TypeTag](q: SlickQuery[T]) = {
-    slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
-  }
-
   implicit def createQueryActionExtensionMethodsFromDirectQuery[T: TypeTag, C[_]](q: direct.Query[T, C]) = {
-    slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.toNode).tree, ())
+    slickDriver.createQueryActionExtensionMethods[Seq[T], NoStream](slickDriver.queryCompiler.run(q.lift.toNode).tree, ())
   }
 
-  implicit def query2rep[T, C[_]](q: direct.Query[T, C]): lifted.Rep[C[T]] = q.lift
+  implicit def query2rep[T, C[_]](q: direct.Query[T, C]): lifted.Query[q.Table, T, C] = q.lift
 
   object Config extends Config
 
@@ -46,6 +40,7 @@ package object direct {
 
     // TODO: Get rid of these and manually typecheck that members exist?
     type Literal[T] = slick.lifted.Rep[T]
+
     type Rep[T] = slick.lifted.Rep[T]
 
     // TODO: Do we want the result to be from slick.ast?
@@ -99,7 +94,7 @@ package object direct {
         Set.empty,
         Some(preProcessing),
         None,
-        if (debug) 6 else 0
+        if (debug) 2 else 0
       ).apply(block)
     }
   }

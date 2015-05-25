@@ -15,20 +15,19 @@ class TakeSpec extends FlatSpec with TestHelper {
     users.lift
     equalQueries(
       query {
-        users.take(1).take(100)
+        users.take(1)
       }.result,
       liftedUsers.take(1).result
     )
   }
-
   // TODO: Really strange compilation error
-//  it should "work with take(2).take(1)" in {
-//    val users = Query[User]
-//    equalQueries(
-//      queryDebug {
-//        users.take(2).take(1)
-//      }.result,
-//      liftedUsers.take(2).take(1).result
-//    )
-//  }
+  it should "work with take(2).take(1)" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.take(2).take(1)
+      }.result,
+      liftedUsers.take(2).take(1).result
+    )
+  }
 }

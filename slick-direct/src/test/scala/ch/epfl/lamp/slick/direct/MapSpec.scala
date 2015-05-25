@@ -9,16 +9,14 @@ class MapSpec extends FlatSpec with TestHelper {
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-//  "Query[T].map" should "work" in {
-//    direct.Query.getTable[User]
-//    val users = Query[User]
-//
-//    equalQueries(
-//      queryDebug {
-//        users.map(_.name)
-//      }.result,
-//      liftedUsers.map(_.name).result
-//    )
-//  }
+  "Query[T].map" should "work" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.map(u => u.name)
+      }.result,
+      liftedUsers.map(_.name).result
+    )
+  }
 
 }
