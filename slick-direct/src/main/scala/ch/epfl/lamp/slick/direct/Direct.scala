@@ -37,14 +37,23 @@ trait Query[T, C[_]] {
 }
 
 object SlickReification {
+  import slick.driver.H2Driver.api._
 
   def ===[T](lhs: lifted.Rep[_ <: T], rhs: lifted.Rep[_ <: T]): Rep[Option[Boolean]] =  {
     ???
   }
 
+  def string_++(lhs: lifted.Rep[String], rhs: lifted.Rep[String]): Rep[String] =  {
+    println("STRING CONCAT")
+    println(lhs.toNode.getDumpInfo)
+    println(rhs)
+    lhs ++ rhs
+  }
+
   // We explicitly provide T during projection processing
   def column[T, C](e: AnyRef, field: Rep[String], typ: Rep[String]): Rep[C] =  {
     val f = field.asInstanceOf[LiteralColumn[String]]
+    println(s"VALUE=${f.value}")
     // TODO: Move this into ProjectionProcessing, and use
     // implicit conversion from any type C to ScalaBaseType
     val tt = typ.asInstanceOf[LiteralColumn[String]].value match {
@@ -53,7 +62,10 @@ object SlickReification {
       case "java.lang.String" =>
         new ScalaBaseType[String]
     }
-    e.asInstanceOf[H2Driver.Table[T]].column[C](f.value)(tt.asInstanceOf[TypedType[C]])
+
+    val result = e.asInstanceOf[H2Driver.Table[T]].column[C](f.value)(tt.asInstanceOf[TypedType[C]])
+    println(result.toNode.getDumpInfo)
+    result
   }
 
 }

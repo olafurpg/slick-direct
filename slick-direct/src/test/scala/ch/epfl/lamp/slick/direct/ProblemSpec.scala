@@ -23,4 +23,10 @@ class ProblemSpec extends FlatSpec with TestHelper {
       })
       println(i)
     }
+  "+" should "work on string" in {
+
+    val users = TableQuery[Users]
+    val res = stringColumnExtensionMethods(SlickReification.column[ch.epfl.lamp.slick.direct.User, String](users.baseTableRow, "name", "java.lang.String")) ++ (" Cool")
+    println(res)
+  }
 }

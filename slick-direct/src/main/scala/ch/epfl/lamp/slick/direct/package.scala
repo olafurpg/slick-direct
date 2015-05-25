@@ -98,7 +98,7 @@ package object direct {
   }
 
   class MyString {
-    @preserveInvocation
+    @reifyAs(SlickReification.string_++ _)
     def +(that: String): String = ???
   }
 

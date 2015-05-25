@@ -17,6 +17,7 @@ class MapSpec extends FlatSpec with TestHelper {
       }.result,
       liftedUsers.map(u => u.name).result
     )
+    println(liftedUsers.baseTableRow.name.toNode.getDumpInfo)
   }
 
 //  "Query[T].map" should "work with string column extension methods" in {
