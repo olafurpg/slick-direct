@@ -31,6 +31,9 @@ trait Query[T, C[_]] {
   @preserveInvocation
   def flatMap[U, D[_]](f: T => Query[U, D]): Query[U, D] = ???
 
+  @preserveInvocation
+  def filter(f: T => Boolean): Query[T, C] = ???
+
 }
 
 object SlickReification {

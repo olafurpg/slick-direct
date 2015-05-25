@@ -8,7 +8,24 @@ class FlatMapSpec extends FlatSpec with TestHelper {
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-  "Query[T].flatMap" should "work without filter" in {
+  "Query[T].flatMap" should "work with car.id select" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      queryDebug {
+        for {
+          user <- users
+          car <- cars // if (car.ownerId == user.id)
+        } yield car.id
+      }.result,
+      (for {
+        user <- liftedUsers
+        car <- liftedCars
+      } yield car.id).result
+    )
+  }
+
+  "Query[T].flatMap" should "work with car.name select" in {
     val users = Query[User]
     val cars = Query[Car]
     equalQueries(
@@ -16,12 +33,12 @@ class FlatMapSpec extends FlatSpec with TestHelper {
         for {
           user <- users
           car <- cars
-        } yield car.id
+        } yield car.name
       }.result,
       (for {
         user <- liftedUsers
         car <- liftedCars
-      } yield car.id).result
+      } yield car.name).result
     )
   }
   // TODO: Type rewrite for product types

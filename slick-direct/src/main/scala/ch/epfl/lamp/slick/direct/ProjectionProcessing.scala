@@ -32,7 +32,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
   }
 
   /**
-   * We convert
+   * Convert all field accesses to liftColumnSelect
    * @param ctx Map from argument to argument's type tree
    */
   private final class ColumnSelect(ctx: Map[String, Tree]) extends Transformer {
@@ -46,6 +46,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
           Function(args, transform(rhs))
 
         case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if ctx.contains(obj) =>
+          // TODO: Make configurable
           q"liftColumnSelect[${ctx(obj)}, ${s.tpe}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
 
         case _ => super.transform(tree)
