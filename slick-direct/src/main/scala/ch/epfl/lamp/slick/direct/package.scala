@@ -70,7 +70,7 @@ package object direct {
 
     def lift[T](e: T): Rep[T] = e match {
       case _: Rep[T] => e.asInstanceOf[Rep[T]]
-      case s: String => SlickColField[T](s)
+      case s: String => new LiteralColumn(s).asInstanceOf[Rep[T]]
       case b: Boolean => new LiteralColumn(b).asInstanceOf[Rep[T]]
       case _ => INTERNAL(e)
     }
@@ -97,6 +97,11 @@ package object direct {
     def >(that: Int): Boolean = ???
   }
 
+  class MyString {
+    @preserveInvocation
+    def +(that: String): String = ???
+  }
+
   class MyTuple {
     @preserveInvocation
     def apply(a: AnyRef*) = ???
@@ -117,7 +122,8 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map(
-          c.typeOf[Int] -> c.typeOf[MyInt]
+          c.typeOf[Int] -> c.typeOf[MyInt],
+          c.typeOf[String] -> c.typeOf[MyString]
         ),
         Map(
           // TODO: Can we avoid hardcoding Seq here?

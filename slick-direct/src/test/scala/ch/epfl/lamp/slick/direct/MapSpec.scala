@@ -9,13 +9,23 @@ class MapSpec extends FlatSpec with TestHelper {
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-//  "Query[T].map" should "work with string column" in {
+  "Query[T].map" should "work with string column" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.map(u => u.name)
+      }.result,
+      liftedUsers.map(u => u.name).result
+    )
+  }
+
+//  "Query[T].map" should "work with string column extension methods" in {
 //    val users = Query[User]
 //    equalQueries(
 //      queryDebug {
-//        users.map(u => u.name)
+//        users.map(u => u.name + " Cool")
 //      }.result,
-//      liftedUsers.map(u => u.name).result
+//      liftedUsers.map(u => u.name + " Cool").result
 //    )
 //  }
 //
