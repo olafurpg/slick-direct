@@ -30,6 +30,11 @@ package object direct {
 
   implicit def query2rep[T, C[_]](q: direct.Query[T, C]): lifted.Query[q.Table, T, C] = q.lift
 
+  case class SlickCol[C](field: String, tt: TypedType[C]) extends slick.lifted.Rep[C] {
+    def encodeRef(path: slick.ast.Node): slick.lifted.Rep[C] = ???
+    def toNode: slick.ast.Node = ???
+  }
+
   object Config extends Config
 
   trait Config extends DslConfig
@@ -64,6 +69,7 @@ package object direct {
 
     def lift[T](e: T): Rep[T] = e match {
       case _: Rep[T] => e.asInstanceOf[Rep[T]]
+      case s: String => SlickCol(s, implicitly[TypedType[String]]).asInstanceOf[SlickCol[T]]
       case _ => INTERNAL(e)
     }
   }
@@ -71,7 +77,7 @@ package object direct {
   trait VirtualizationOverrides {
 
     @reifyAs(SlickReification.column _)
-    def liftColumn[T, C](e: T, field: String, typedType: TypedType[C]): C = ???
+    def liftColumn[T, C](e: T, field: String): C = ???
 
   }
 

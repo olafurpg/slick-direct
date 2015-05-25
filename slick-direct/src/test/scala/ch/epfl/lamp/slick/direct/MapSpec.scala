@@ -15,7 +15,7 @@ class MapSpec extends FlatSpec with TestHelper {
       queryDebug {
         users.map(u => u.name)
       }.result,
-      liftedUsers.map(u => u.column[String]("name")).result
+      liftedUsers.map(u => u.id).result
     )
   }
 

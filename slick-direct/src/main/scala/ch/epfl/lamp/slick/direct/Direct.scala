@@ -32,8 +32,10 @@ trait Query[T, C[_]] {
 
 object SlickReification {
 
-  def column[T, C](e: AbstractTable[T], field: String, tt: TypedType[C]): Rep[C] =  {
-    e.asInstanceOf[H2Driver.Table[T]].column[C](field)(tt)
+  def column[T, C](e: AnyRef, field: Rep[String]): Rep[C] =  {
+    // Ugly, but necessary
+    val f = field.asInstanceOf[SlickCol[C]]
+    e.asInstanceOf[H2Driver.Table[T]].column[C](f.field)(f.tt)
   }
 
 }

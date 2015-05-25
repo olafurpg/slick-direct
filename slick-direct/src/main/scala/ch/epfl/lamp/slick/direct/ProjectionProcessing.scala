@@ -34,8 +34,15 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
   private final class ColumnSelect(args: Map[String, Ident]) extends Transformer {
     override def transform(tree: Tree): Tree = {
       tree match {
+        case Function(lhs, rhs) =>
+          val args = lhs.map { vd =>
+            // TODO: Can typeTransformer help here?
+            ValDef(vd.mods, vd.name, TypeTree(c.typeOf[AnyRef]), vd.rhs)
+          }
+          Function(args, transform(rhs))
+
         case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if args.contains(obj) =>
-          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))}, implicitly[slick.ast.TypedType[${s.tpe}]])"
+          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))})"
 
         case _ => super.transform(tree)
       }
