@@ -17,8 +17,8 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
       tree match {
         case Function(lhs, rhs) =>
           println(showRaw(tree))
-          val args = lhs.collect {
-            case ValDef(_, TermName(name), _, _) => name -> Ident(TermName(name))
+          val args = tree.collect {
+            case ValDef(_, TermName(name), tpt, _) => name -> tpt
           }.toMap
           val result = new ColumnSelect(args).transform(tree)
           println(result)
@@ -31,7 +31,11 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
     }
   }
 
-  private final class ColumnSelect(args: Map[String, Ident]) extends Transformer {
+  /**
+   * We convert
+   * @param ctx Map from argument to argument's type tree
+   */
+  private final class ColumnSelect(ctx: Map[String, Tree]) extends Transformer {
     override def transform(tree: Tree): Tree = {
       tree match {
         case Function(lhs, rhs) =>
@@ -41,8 +45,8 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
           }
           Function(args, transform(rhs))
 
-        case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if args.contains(obj) =>
-          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
+        case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if ctx.contains(obj) =>
+          q"liftColumnSelect[${ctx(obj)}, ${s.tpe}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
 
         case _ => super.transform(tree)
       }

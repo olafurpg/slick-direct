@@ -8,23 +8,22 @@ class FlatMapSpec extends FlatSpec with TestHelper {
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-//  "Query[T].flatMap" should "work without filter" in {
-//    val users = Query[User]
-//    val cars = Query[Car]
-//    equalQueries(
-//      queryDebug {
-//        for {
-//          user <- users
-//          car <- cars
-//        } yield car.id
-//      }.result,
-//      (for {
-//        user <- liftedUsers
-//        car <- liftedCars
-//      } yield car.id).result
-//    )
-//  }
-
+  "Query[T].flatMap" should "work without filter" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      queryDebug {
+        for {
+          user <- users
+          car <- cars
+        } yield car.id
+      }.result,
+      (for {
+        user <- liftedUsers
+        car <- liftedCars
+      } yield car.id).result
+    )
+  }
   // TODO: Type rewrite for product types
   //  "Query[T].map" should "work with tuple selection" in {
   //    val users = Query[User]

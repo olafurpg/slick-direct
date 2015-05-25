@@ -38,7 +38,8 @@ object SlickReification {
   // We explicitly provide T during projection processing
   def column[T, C](e: AnyRef, field: Rep[String], typ: Rep[String]): Rep[C] =  {
     val f = field.asInstanceOf[SlickColField[C]]
-    // TODO: Move this into ProjectionProcessing, fail at compile time
+    // TODO: Move this into ProjectionProcessing, and use
+    // implicit conversion from any type C to ScalaBaseType
     val tt = typ.asInstanceOf[SlickColField[C]].name match {
       case "scala.Int" =>
         new ScalaBaseType[Int]

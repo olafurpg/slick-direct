@@ -79,7 +79,7 @@ package object direct {
   trait VirtualizationOverrides {
 
     @reifyAs(SlickReification.column _)
-    def liftColumn[T, C](e: T, fieldName: String, typ: String): C = ???
+    def liftColumnSelect[T, C](e: T, fieldName: String, typ: String): C = ???
 
   }
 
