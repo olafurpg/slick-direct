@@ -18,14 +18,34 @@ class FilterSpec extends FlatSpec with TestHelper {
     )
   }
 
-  it should "work with equality == condition"{
+  it should "work with equality < condition" in {
     val users = Query[User]
     equalQueries(
       queryDebug {
-        users.filter(u => true)
+        users.filter(u => u.id < 2)
       }.result,
-      liftedUsers.filter(u => u.id =!= 5).result
+      liftedUsers.filter(u => u.id < 2).result
     )
   }
+
+  it should "work with equality > condition" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.filter(u => u.id > 1)
+      }.result,
+      liftedUsers.filter(u => u.id > 1).result
+    )
+  }
+
+//  it should "work with equality == condition" in {
+//    val users = Query[User]
+//    equalQueries(
+//      queryDebug {
+//        users.filter(u => u.id == 1)
+//      }.result,
+//      liftedUsers.filter(u => columnExtensionMethods(u.id) === 1).result
+//    )
+//  }
 
 }

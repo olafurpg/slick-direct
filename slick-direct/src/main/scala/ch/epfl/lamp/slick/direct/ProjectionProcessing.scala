@@ -18,7 +18,8 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
         case Function(lhs, rhs) =>
           println(showRaw(tree))
           val args = tree.collect {
-            case ValDef(_, TermName(name), tpt, _) => name -> tpt
+            case ValDef(_, TermName(name), tpt, _) =>
+              name -> TypeTree(tpt.tpe.widen.dealias)
           }.toMap
           val result = new ColumnSelect(args).transform(tree)
           println(result)
@@ -47,7 +48,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
 
         case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if ctx.contains(obj) =>
           // TODO: Make configurable
-          q"liftColumnSelect[${ctx(obj)}, ${s.tpe}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
+          q"liftColumnSelect[${ctx(obj)}, ${s.tpe.widen.dealias}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
 
         case _ => super.transform(tree)
       }

@@ -1,6 +1,6 @@
 package ch.epfl.lamp.slick
 
-import ch.epfl.directembedding.transformers.{preserveInvocation, reifyAs}
+import ch.epfl.directembedding.transformers.{ preserveInvocation, reifyAs }
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
 import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
@@ -68,7 +68,6 @@ package object direct {
 
     def queryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[e.Table, T, C] = e.lift
 
-
     def lift[T](e: T): Rep[T] = e match {
       case _: Rep[T] => e.asInstanceOf[Rep[T]]
       case s: String => SlickColField[T](s)
@@ -79,9 +78,23 @@ package object direct {
 
   trait VirtualizationOverrides {
 
+    @preserveInvocation
+    def <[T](a: T, b: T): Boolean = ???
+
     @reifyAs(SlickReification.column _)
     def liftColumnSelect[T, C](e: T, fieldName: String, typ: String): C = ???
 
+    @reifyAs(SlickReification.=== _)
+    def infix_==[T](a: T, b: T): Boolean = ???
+
+  }
+
+  class MyInt {
+    @preserveInvocation
+    def <(that: Int): Boolean = ???
+
+    @preserveInvocation
+    def >(that: Int): Boolean = ???
   }
 
   class MyTuple {
@@ -103,7 +116,9 @@ package object direct {
       DETransformer[c.type, T, Config](c)(
         "slick-direct",
         DslConfig,
-        Map.empty,
+        Map(
+          c.typeOf[Int] -> c.typeOf[MyInt]
+        ),
         Map(
           // TODO: Can we avoid hardcoding Seq here?
           c.typeOf[Int] -> "constColumnLift",

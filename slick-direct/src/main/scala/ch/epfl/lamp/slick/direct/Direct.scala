@@ -38,6 +38,10 @@ trait Query[T, C[_]] {
 
 object SlickReification {
 
+  def ===[T](lhs: lifted.Rep[_ <: T], rhs: lifted.Rep[_ <: T]): Rep[Option[Boolean]] =  {
+    ???
+  }
+
   // We explicitly provide T during projection processing
   def column[T, C](e: AnyRef, field: Rep[String], typ: Rep[String]): Rep[C] =  {
     val f = field.asInstanceOf[SlickColField[C]]
