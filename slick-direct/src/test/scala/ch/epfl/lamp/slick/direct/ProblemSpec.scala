@@ -10,10 +10,17 @@ class ProblemSpec extends FlatSpec with TestHelper {
       // Preprocessing for case classes
 
 
+  // TODO: This doesn't compile after the macro expansion, although it compiles here :/
     "Query" should "work with multiple take" in {
       val users = Query[User]
       import ch.epfl.lamp.slick.direct.Config._;
-      val k = ch.epfl.lamp.slick.direct.Config.queryLift(users).take(ch.epfl.lamp.slick.direct.Config.constColumnLift(2L)).take(ch.epfl.lamp.slick.direct.Config.constColumnLift(1L))
-      println(k)
+      val i = ch.epfl.lamp.slick.direct.Config.compile({
+        import ch.epfl.directembedding.transformers.RewireEmbeddedControls._;
+        {
+          import ch.epfl.lamp.slick.direct.Config._;
+          ch.epfl.lamp.slick.direct.Config.queryLift(users).take(ch.epfl.lamp.slick.direct.Config.constColumnLift(2L)).take(ch.epfl.lamp.slick.direct.Config.constColumnLift(1L))
+        }
+      })
+      println(i)
     }
 }

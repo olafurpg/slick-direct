@@ -57,7 +57,9 @@ package object direct {
 
     def dsl[T](e: Rep[T]): T = ???
 
-    def constColumnLift[T](e: T): ConstColumn[T] = e match {
+    def constColumnLift[T](e: T): T = e
+    
+    def constColumnLift2[T](e: T): ConstColumn[T] = e match {
       // TODO: Erasure issue?
       case n: Int => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
       case n: Long => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
@@ -100,7 +102,7 @@ package object direct {
         Set.empty,
         Some(preProcessing),
         None,
-        if (debug) 4 else 0
+        if (debug) 6 else 0
       ).apply(block)
     }
   }
