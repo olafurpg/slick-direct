@@ -14,8 +14,9 @@ trait Query[T, C[_]] {
   /**
    * The accumulated AST in this query
    */
-  def lift: slick.lifted.Query[E, T, C]
-  type E = AbstractTable[T]
+  def lift: slick.lifted.Query[Table, T, C]
+
+  type Table = AbstractTable[T]
 
   type Self = T
   // TODO: add shape to query
@@ -44,6 +45,7 @@ object Query extends SlickReflectUtil {
       class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
         def * = ??? // We override toNode
       }
+
       def lift = {
         new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
           override lazy val toNode = new SlickReifier(driver).tableExpansion(typeTag[T])

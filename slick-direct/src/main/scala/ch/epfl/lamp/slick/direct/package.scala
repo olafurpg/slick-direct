@@ -57,16 +57,13 @@ package object direct {
 
     def dsl[T](e: Rep[T]): T = ???
 
-    def constColumnLift[T](e: T): T = e
-    
-    def constColumnLift2[T](e: T): ConstColumn[T] = e match {
-      // TODO: Erasure issue?
+    def constColumnLift[T](e: T): ConstColumn[T] = e match {
       case n: Int => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
       case n: Long => new LiteralColumn(n).asInstanceOf[ConstColumn[T]]
       case _ => INTERNAL(e)
     }
 
-    def queryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[e.E, T, C] = e.lift
+    def queryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[e.Table, T, C] = e.lift
 
     def lift[T](e: T): Rep[T] = e match {
       case _ => INTERNAL(e)
