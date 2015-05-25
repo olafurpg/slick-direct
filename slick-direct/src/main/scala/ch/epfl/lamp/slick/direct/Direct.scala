@@ -63,6 +63,7 @@ object SlickReification {
         new ScalaBaseType[String]
     }
 
+    println(s"DIRECT=${e}")
     val result = e.asInstanceOf[H2Driver.Table[T]].column[C](f.value)(tt.asInstanceOf[TypedType[C]])
     println(result.toNode.getDumpInfo)
     result
@@ -81,17 +82,17 @@ object Query extends SlickReflectUtil {
 
   def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T, Seq] = {
     val table = getTable[T]
+    class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
+      def * = ??? // We override toNode
+    }
+
+    val q: TableQuery[LiftedTable] = new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
+      override lazy val toNode = new SlickReifier(driver).tableExpansion(typeTag[T])
+    }
+
     new Query[T, Seq] {
 
-      class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
-        def * = ??? // We override toNode
-      }
-
-      def lift = {
-        new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
-          override lazy val toNode = new SlickReifier(driver).tableExpansion(typeTag[T])
-        }
-      }
+      def lift = q
     }
   }
 }

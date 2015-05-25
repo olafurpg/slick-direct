@@ -4,9 +4,6 @@ import org.scalatest.FlatSpec
 import slick.driver.H2Driver.api._
 
 class FilterSpec extends FlatSpec with TestHelper {
-  // 1. Closure for reifyAs annotation
-  // 2. Composition of queries
-  // 3. Preprocessing for case classes
 
   "filter" should "work with literal booleans" in {
     val users = Query[User]
@@ -38,6 +35,7 @@ class FilterSpec extends FlatSpec with TestHelper {
     )
   }
 
+  // TODO: WIP
 //  it should "work with equality == condition" in {
 //    val users = Query[User]
 //    equalQueries(
