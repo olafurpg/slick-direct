@@ -1,5 +1,6 @@
 package ch.epfl.lamp.slick
 
+import ch.epfl.directembedding.transformers.reifyAs
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
 import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
@@ -60,12 +61,17 @@ package object direct {
 
     def queryLift[T, C[_]](e: direct.Query[T, C]): lifted.Query[e.Table, T, C] = e.lift
 
+
     def lift[T](e: T): Rep[T] = e match {
+      case _: Rep[T] => e.asInstanceOf[Rep[T]]
       case _ => INTERNAL(e)
     }
   }
 
   trait VirtualizationOverrides {
+
+    @reifyAs(SlickReification.column _)
+    def liftColumn[T, C](e: T, field: String, typedType: TypedType[C]): C = ???
 
   }
 

@@ -9,7 +9,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
   import c.universe._
 
   override val PreProcess = new (Tree => Tree) {
-    def apply(tree: Tree) = tree // new FieldExtractor().transform(tree)
+    def apply(tree: Tree) = new FieldExtractor().transform(tree)
   }
 
   private final class FieldExtractor extends Transformer {
@@ -18,16 +18,25 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
         case Function(lhs, rhs) =>
           println(showRaw(tree))
           val args = lhs.collect {
-            case ValDef(_, TermName(name), _, _) => name
-          }
-          println(args)
-          var fields = rhs.collect {
-            case Select(Ident(TermName(obj)), TermName(field)) if args.contains(obj) =>
-              Literal(Constant(field))
-          }
+            case ValDef(_, TermName(name), _, _) => name -> Ident(TermName(name))
+          }.toMap
+          val result = new ColumnSelect(args).transform(tree)
+          println(result)
+          println(showRaw(result))
 
-          Function(lhs, q"List[String](..$fields)")
-          Function(lhs, fields.head)
+          tree
+          result
+        case _ => super.transform(tree)
+      }
+    }
+  }
+
+  private final class ColumnSelect(args: Map[String, Ident]) extends Transformer {
+    override def transform(tree: Tree): Tree = {
+      tree match {
+        case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if args.contains(obj) =>
+          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))}, implicitly[slick.ast.TypedType[${s.tpe}]])"
+
         case _ => super.transform(tree)
       }
     }

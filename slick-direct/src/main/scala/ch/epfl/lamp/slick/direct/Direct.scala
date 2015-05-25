@@ -2,9 +2,10 @@ package ch.epfl.lamp.slick.direct
 
 import ch.epfl.directembedding.transformers.{preserveInvocation, reifyAs}
 import ch.epfl.lamp.slick.direct
+import slick.profile.RelationalProfile
 import slick.{ lifted, ast }
 import slick.ast._
-import slick.driver.JdbcDriver
+import slick.driver.{H2Driver, JdbcDriver}
 import slick.lifted._
 import slick.model.{ Table, Column, QualifiedName }
 import scala.reflect.runtime.universe._
@@ -26,6 +27,14 @@ trait Query[T, C[_]] {
 
   @preserveInvocation
   def map[U](f: T => U): Query[U, C] = ???
+
+}
+
+object SlickReification {
+
+  def column[T, C](e: AbstractTable[T], field: String, tt: TypedType[C]): Rep[C] =  {
+    e.asInstanceOf[H2Driver.Table[T]].column[C](field)(tt)
+  }
 
 }
 
