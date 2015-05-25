@@ -1,33 +1,29 @@
 package ch.epfl.lamp.slick.direct
 
-import ch.epfl.lamp.slick.direct
 import org.scalatest.FlatSpec
 import slick.driver.H2Driver.api._
 
-class MapSpec extends FlatSpec with TestHelper {
+class FlatMapSpec extends FlatSpec with TestHelper {
   // 1. Closure for reifyAs annotation
   // 2. Composition of queries
   // 3. Preprocessing for case classes
 
-  "Query[T].map" should "work with string column" in {
-    val users = Query[User]
-    equalQueries(
-      queryDebug {
-        users.map(u => u.name)
-      }.result,
-      liftedUsers.map(u => u.name).result
-    )
-  }
-
-  "Query[T].map" should "work with int column" in {
-    val users = Query[User]
-    equalQueries(
-      queryDebug {
-        users.map(u => u.id)
-      }.result,
-      liftedUsers.map(u => u.id).result
-    )
-  }
+//  "Query[T].flatMap" should "work without filter" in {
+//    val users = Query[User]
+//    val cars = Query[Car]
+//    equalQueries(
+//      queryDebug {
+//        for {
+//          user <- users
+//          car <- cars
+//        } yield car.id
+//      }.result,
+//      (for {
+//        user <- liftedUsers
+//        car <- liftedCars
+//      } yield car.id).result
+//    )
+//  }
 
   // TODO: Type rewrite for product types
   //  "Query[T].map" should "work with tuple selection" in {

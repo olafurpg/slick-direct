@@ -28,14 +28,24 @@ trait Query[T, C[_]] {
   @preserveInvocation
   def map[U](f: T => U): Query[U, C] = ???
 
+  @preserveInvocation
+  def flatMap[U, D[_]](f: T => Query[U, D]): Query[U, D] = ???
+
 }
 
 object SlickReification {
 
-  def column[T, C](e: AnyRef, field: Rep[String]): Rep[C] =  {
-    // Ugly, but necessary
-    val f = field.asInstanceOf[SlickCol[C]]
-    e.asInstanceOf[H2Driver.Table[T]].column[C](f.field)(f.tt)
+  // We explicitly provide T during projection processing
+  def column[T, C](e: AnyRef, field: Rep[String], typ: Rep[String]): Rep[C] =  {
+    val f = field.asInstanceOf[SlickColField[C]]
+    // TODO: Move this into ProjectionProcessing, fail at compile time
+    val tt = typ.asInstanceOf[SlickColField[C]].name match {
+      case "scala.Int" =>
+        new ScalaBaseType[Int]
+      case "java.lang.String" =>
+        new ScalaBaseType[String]
+    }
+    e.asInstanceOf[H2Driver.Table[T]].column[C](f.name)(tt.asInstanceOf[TypedType[C]])
   }
 
 }

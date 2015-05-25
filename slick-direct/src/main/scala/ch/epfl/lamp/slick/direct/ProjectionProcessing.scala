@@ -42,7 +42,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
           Function(args, transform(rhs))
 
         case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if args.contains(obj) =>
-          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))})"
+          q"liftColumn[User, ${s.tpe}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
 
         case _ => super.transform(tree)
       }
