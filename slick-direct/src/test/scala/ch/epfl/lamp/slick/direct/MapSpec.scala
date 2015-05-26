@@ -27,16 +27,16 @@ class MapSpec extends FlatSpec with TestHelper {
   }
 
   // TODO: Problem with root driver.Table reference
-//  "Query[T].map" should "work with string column extension methods" in {
-//    val users = Query[User]
-//    equalQueries(
-//      queryDebug {
-//        users.map(u => u.name + " Cool")
-//      }.result,
-//      liftedUsers.map(u => u.name + " Cool").result
-//    )
-//  }
-
+  "Query[T].map" should "work with string column extension methods" in {
+    val users = Query[User]
+    equalQueries(
+      query {
+        users.map(u => u.name + " Cool")
+      }.result,
+      // Note the ++, one + will give wrong results
+      liftedUsers.map(u => u.name ++ " Cool").result
+    )
+  }
 
   // TODO: Type rewrite for product types
   //  "Query[T].map" should "work with tuple selection" in {

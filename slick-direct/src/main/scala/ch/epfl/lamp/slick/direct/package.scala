@@ -1,6 +1,6 @@
 package ch.epfl.lamp.slick
 
-import ch.epfl.directembedding.transformers.{ preserveInvocation, reifyAs }
+import ch.epfl.directembedding.transformers.{ reifyAsInvoked, reifyAs }
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
 import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
@@ -78,7 +78,7 @@ package object direct {
 
   trait VirtualizationOverrides {
 
-    @preserveInvocation
+    @reifyAsInvoked
     def <[T](a: T, b: T): Boolean = ???
 
     @reifyAs(SlickReification.column _)
@@ -90,10 +90,10 @@ package object direct {
   }
 
   class MyInt {
-    @preserveInvocation
+    @reifyAsInvoked
     def <(that: Int): Boolean = ???
 
-    @preserveInvocation
+    @reifyAsInvoked
     def >(that: Int): Boolean = ???
   }
 
@@ -103,7 +103,7 @@ package object direct {
   }
 
   class MyTuple {
-    @preserveInvocation
+    @reifyAsInvoked
     def apply(a: AnyRef*) = ???
   }
 

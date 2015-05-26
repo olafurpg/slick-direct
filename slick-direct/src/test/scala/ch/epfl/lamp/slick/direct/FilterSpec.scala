@@ -21,7 +21,7 @@ class FilterSpec extends FlatSpec with TestHelper {
       query {
         users.filter(u => u.id < 2)
       }.result,
-      liftedUsers.filter(u => u.id < 2).result
+      liftedUsers.filter(u => columnExtensionMethods(u.id) < valueToConstColumn(2)).result
     )
   }
 

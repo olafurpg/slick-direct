@@ -1,6 +1,6 @@
 package ch.epfl.lamp.slick.direct
 
-import ch.epfl.directembedding.transformers.{ preserveInvocation, reifyAs }
+import ch.epfl.directembedding.transformers.{ reifyAsInvoked, reifyAs }
 import ch.epfl.lamp.slick.direct
 import slick.profile.RelationalProfile
 import slick.{ lifted, ast }
@@ -22,22 +22,22 @@ trait Query[T, C[_]] {
   type Self = T
   // TODO: add shape to query
 
-  @preserveInvocation
+  @reifyAsInvoked
   def take(i: Long): Query[T, C] = ???
 
-  @preserveInvocation
+  @reifyAsInvoked
   def map[U](f: T => U): Query[U, C] = ???
 
-  @preserveInvocation
+  @reifyAsInvoked
   def flatMap[U, D[_]](f: T => Query[U, D]): Query[U, D] = ???
 
-  @preserveInvocation
+  @reifyAsInvoked
   def filter(f: T => Boolean): Query[T, C] = ???
 
-  @preserveInvocation
+  @reifyAsInvoked
   def filterNot(f: T => Boolean): Query[T, C] = ???
 
-  @preserveInvocation
+  @reifyAsInvoked
   def withFilter(f: T => Boolean): Query[T, C] = ???
 
 }
@@ -50,10 +50,6 @@ object SlickReification {
   }
 
   def string_++(lhs: lifted.Rep[String], rhs: lifted.Rep[String]): Rep[String] = {
-    // TODO: Fix this issue, the original table reference is lost
-    println("STRING CONCAT")
-    println(lhs.toNode.getDumpInfo)
-    println(rhs)
     lhs ++ rhs
   }
 
