@@ -6,7 +6,7 @@ import slick.driver.H2Driver.api._
 
 class SelectSpec extends FlatSpec with TestHelper {
 
-  "Query[T]" should "select *" in {
+  "Query[T]" should "select * from users" in {
     // TODO: Require Query[T] to be inside query block
     equalQueries(
       queryDebug {
@@ -16,4 +16,13 @@ class SelectSpec extends FlatSpec with TestHelper {
     )
   }
 
+  "Query[T]" should "select * from cars" in {
+    // TODO: Require Query[T] to be inside query block
+    equalQueries(
+      queryDebug {
+        cars
+      }.result,
+      liftedCars.result
+    )
+  }
 }

@@ -90,6 +90,8 @@ package object direct {
 
   trait VirtualizationOverrides {
 
+    implicit def bootstrap2tableQuery[T](b: BootstrappedTable[T]): TableQuery[AbstractTable[T]] = b.tableQuery
+
     @reifyAs(SlickReification.bootstrap _)
     def bootstrap[T](tableQuery: TableQuery[AbstractTable[T]]): BaseQuery[T] = ???
 

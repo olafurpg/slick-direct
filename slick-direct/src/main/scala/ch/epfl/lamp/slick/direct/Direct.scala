@@ -65,7 +65,6 @@ object SlickReification extends SlickReflectUtil {
   import slick.driver.H2Driver.api._
 
   def bootstrap[T](tableQuery: TableQuery[AbstractTable[T]]): BootstrappedTable[T] = BootstrappedTable(tableQuery)
-
   // TODO: Make generic
   def slick_int_===[T](lhs: lifted.Rep[Int], rhs: lifted.Rep[Int]): Rep[Option[Boolean]] = {
     columnExtensionMethods(lhs) === rhs

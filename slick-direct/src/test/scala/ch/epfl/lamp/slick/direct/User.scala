@@ -20,5 +20,5 @@ class Users(tag: Tag)
   def id: Rep[Int] = column[Int]("id", O.PrimaryKey)
   def name: Rep[String] = column[String]("name")
 
-  def * = ProvenShape.proveShapeOf((id, name) <> (User.tupled, User.unapply))
+  def * = ProvenShape.proveShapeOf((id, name) <> ((User.apply _).tupled, User.unapply))
 }
