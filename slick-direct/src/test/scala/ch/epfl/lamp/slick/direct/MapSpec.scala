@@ -38,6 +38,26 @@ class MapSpec extends FlatSpec with TestHelper {
     )
   }
 
+  it should "work with equality == condition for int" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.filter(u => u.id == 1)
+      }.result,
+      liftedUsers.filter(u => u.id === 1).result
+    )
+  }
+
+  it should "work with equality == condition for string" in {
+    val users = Query[User]
+    equalQueries(
+      queryDebug {
+        users.filter(u => u.name == "Olafur")
+      }.result,
+      liftedUsers.filter(u => u.name === "Olafur").result
+    )
+  }
+
   // TODO: Type rewrite for product types
   //  "Query[T].map" should "work with tuple selection" in {
   //    val users = Query[User]

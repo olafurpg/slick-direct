@@ -84,8 +84,11 @@ package object direct {
     @reifyAs(SlickReification.column _)
     def liftColumnSelect[T, C](e: T, fieldName: String, typ: String): C = ???
 
-    @reifyAs(SlickReification.=== _)
-    def infix_==[T](a: T, b: T): Boolean = ???
+    @reifyAs(SlickReification.slick_int_=== _)
+    def infix_==(a: Int, b: Int): Boolean = ???
+
+    @reifyAs(SlickReification.slick_string_=== _)
+    def infix_==(a: String, b: String): Boolean = ???
 
   }
 

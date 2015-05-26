@@ -45,8 +45,13 @@ trait Query[T, C[_]] {
 object SlickReification {
   import slick.driver.H2Driver.api._
 
-  def ===[T](lhs: lifted.Rep[_ <: T], rhs: lifted.Rep[_ <: T]): Rep[Option[Boolean]] = {
-    ???
+  // TODO: Find generic way to
+  def slick_int_===[T](lhs: lifted.Rep[Int], rhs: lifted.Rep[Int]): Rep[Option[Boolean]] = {
+    columnExtensionMethods(lhs) === rhs
+  }
+
+  def slick_string_===[T](lhs: lifted.Rep[String], rhs: lifted.Rep[String]): Rep[Option[Boolean]] = {
+    columnExtensionMethods(lhs) === rhs
   }
 
   def string_++(lhs: lifted.Rep[String], rhs: lifted.Rep[String]): Rep[String] = {
