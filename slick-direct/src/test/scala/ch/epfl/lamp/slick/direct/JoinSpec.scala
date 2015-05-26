@@ -27,7 +27,7 @@ class JoinSpec extends FlatSpec with TestHelper {
     )
   }
 
-  // TODO:
+  // TODO: Implement LiftedTable.*: ProvenShape
   //    [info] - should work *** FAILED ***
   //    [info]   scala.NotImplementedError: an implementation is missing
   //  [info]   at scala.Predef$.$qmark$qmark$qmark(Predef.scala:225)
@@ -41,6 +41,30 @@ class JoinSpec extends FlatSpec with TestHelper {
   //    equalQueries(
   //      d.result,
   //      (liftedUsers joinLeft liftedCars).result
+  //    )
+  //  }
+
+  //  "rightOuterJoin" should "work" in {
+  //    val users = Query[User]
+  //    val cars = Query[Car]
+  //    val d = queryDebug {
+  //      users joinRight cars on (_.id == _.ownerId)
+  //    }
+  //    equalQueries(
+  //      d.result,
+  //      (liftedUsers joinRight liftedCars).result
+  //    )
+  //  }
+  //
+  //  "fullOuterJoin" should "work" in {
+  //    val users = Query[User]
+  //    val cars = Query[Car]
+  //    val d = queryDebug {
+  //      users joinFull cars on (_.id == _.ownerId)
+  //    }
+  //    equalQueries(
+  //      d.result,
+  //      (liftedUsers joinFull liftedCars).result
   //    )
   //  }
 

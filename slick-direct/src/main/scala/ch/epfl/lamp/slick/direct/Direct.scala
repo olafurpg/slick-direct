@@ -46,6 +46,12 @@ trait Query[T, C[_]] {
   @reifyAsInvoked
   def joinLeft[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, Option[T2], T, T2, C] = ???
 
+  @reifyAsInvoked
+  def joinRight[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[Option[T], T2, T, T2, C] = ???
+
+  @reifyAsInvoked
+  def joinFull[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[Option[T], Option[T2], T, T2, C] = ???
+
 }
 
 trait BaseJoinQuery[T1, T2, J1, J2, C[_]] extends Query[(T1, T2), C] {
