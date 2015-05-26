@@ -1,6 +1,7 @@
 package ch.epfl.lamp.slick.direct
 
 import ch.epfl.directembedding.DirectEmbeddingUtils
+import ch.epfl.lamp.slick.direct
 import ch.epfl.yinyang.transformers.{ PostProcessing, PreProcessing }
 
 import scala.reflect.macros.blackbox.Context
@@ -22,6 +23,23 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
           }.toMap
           val result = new ColumnSelect(args).transform(tree)
           result
+          // Generate  TableQuery for BaseQuery
+        case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
+          val typ = tree.tpe.widen.dealias
+          q"ch.epfl.lamp.slick.direct.Query[$typ]"
+          q"""
+
+              class Users(tag: Tag)
+                extends Table[User](tag, "User") {
+
+                def id: Rep[Int] = column[Int]("id", O.PrimaryKey)
+                def name: Rep[String] = column[String]("name")
+
+                def * = slick.lifted.ProvenShape.proveShapeOf((id, name) <> (User.tupled, User.unapply))
+              }
+
+              TableQuery.apply(tag => new Users(tag))
+           """
         case _ => super.transform(tree)
       }
     }

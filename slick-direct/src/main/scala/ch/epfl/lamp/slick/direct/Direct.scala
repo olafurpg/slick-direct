@@ -61,7 +61,7 @@ trait BaseJoinQuery[T1, T2, J1, J2, C[_]] extends Query[(T1, T2), C] {
 
 }
 
-object SlickReification {
+object SlickReification extends SlickReflectUtil {
   import slick.driver.H2Driver.api._
 
   // TODO: Make generic
@@ -93,29 +93,41 @@ object SlickReification {
     result
   }
 
-}
+  def select_*[T](driver: JdbcDriver, tt: TypeTag[T]): lifted.Query[AbstractTable[T], T, Seq] = {
+    val table = getTable[T](tt)
+    class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
+      def * = ??? // We override toNode
+    }
 
-object Query extends SlickReflectUtil {
+    val q: TableQuery[LiftedTable] = new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
+      override lazy val toNode = new SlickReifier(driver).tableExpansion(tt)
+    }
+
+    q
+  }
 
   private def getTable[T: TypeTag]: slick.model.Table = {
     val tt = typeTag[T]
     val table = getTableFromSymbol(tt.tpe.typeSymbol)
     table
   }
+}
 
-  def apply[T: TypeTag](implicit driver: JdbcDriver): Query[T, Seq] = {
-    val table = getTable[T]
-    class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
-      def * = ??? // We override toNode
-    }
+/**
+ * Starting point for a direct query, equal to SELECT *
+ *
+ * Analogous to [[slick.lifted.TableQuery]]
+ * @tparam T Type to be queried
+ */
+trait BaseQuery[T] extends Query[T, Seq] {
+  // Is provided during embedding
+  def tableQuery: TableQuery[Table] = ???
+  def lift = tableQuery.asInstanceOf[lifted.Query[Table, T, Seq]]
 
-    val q: TableQuery[LiftedTable] = new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
-      override lazy val toNode = new SlickReifier(driver).tableExpansion(typeTag[T])
-    }
+}
 
-    new Query[T, Seq] {
+object Query extends SlickReflectUtil {
+  @reifyAs(SlickReification.select_* _)
+  def apply[T]: BaseQuery[T] = new BaseQuery[T] {}
 
-      def lift = q
-    }
-  }
 }

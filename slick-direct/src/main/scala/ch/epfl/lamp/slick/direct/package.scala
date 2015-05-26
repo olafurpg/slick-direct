@@ -1,6 +1,6 @@
 package ch.epfl.lamp.slick
 
-import ch.epfl.directembedding.transformers.{ reifyAsInvoked, reifyAs }
+import ch.epfl.directembedding.transformers.{passThrough, reifyAsInvokedFrom, reifyAsInvoked, reifyAs}
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
 import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
@@ -45,11 +45,18 @@ package object direct {
     override val virtualizeFunctions: Boolean = false
     override val embedFunctions: Boolean = true
     override val flattenCurriedFunctions: Boolean = false
+    override val virtualizeVal: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
     type Literal[T] = slick.lifted.Rep[T]
 
     type Rep[T] = slick.lifted.Rep[T]
+
+    def compile[T, C[_]](e: Rep[C[T]]): direct.BaseQuery[T] =
+      new BaseQuery[T] {
+        // This cast must succeed
+        override def tableQuery = e.asInstanceOf[TableQuery[Table]]
+      }
 
     // TODO: Do we want the result to be from slick.ast?
     def compile[T, C[_]](e: Rep[C[T]]): direct.Query[T, C] =
@@ -106,6 +113,11 @@ package object direct {
     def >(that: Int): Boolean = ???
   }
 
+  class MyTableQuery {
+    @passThrough
+    def apply[T <: slick.lifted.AbstractTable[_]]: TableQuery[T] = ???
+  }
+
   class MyString {
     @reifyAs(SlickReification.string_++ _)
     def +(that: String): String = ???
@@ -132,6 +144,7 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map(
+          c.typeOf[TableQuery[_]] -> c.typeOf[MyTableQuery],
           c.typeOf[Int] -> c.typeOf[MyInt],
           c.typeOf[String] -> c.typeOf[MyString]
         ),
@@ -145,7 +158,7 @@ package object direct {
         Set.empty,
         Some(preProcessing),
         None,
-        if (debug) 4 else 0
+        if (debug) 1 else 0
       ).apply(block)
     }
   }
