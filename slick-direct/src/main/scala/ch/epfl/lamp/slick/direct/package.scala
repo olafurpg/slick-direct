@@ -90,10 +90,10 @@ package object direct {
 
   trait VirtualizationOverrides {
 
-    implicit def bootstrap2tableQuery[T](b: BootstrappedTable[T]): TableQuery[AbstractTable[T]] = b.tableQuery
+    implicit def bootstrap2tableQuery[T](b: BootstrappedTable[T]): lifted.TableQuery[AbstractTable[T]] = b.tableQuery
 
     @reifyAs(SlickReification.bootstrap _)
-    def bootstrap[T](tableQuery: TableQuery[AbstractTable[T]]): BaseQuery[T] = ???
+    def bootstrap[T](tableQuery: lifted.TableQuery[AbstractTable[T]]): BaseQuery[T] = ???
 
     @reifyAsInvoked
     def <[T](a: T, b: T): Boolean = ???
@@ -109,7 +109,7 @@ package object direct {
 
   }
 
-  case class BootstrappedTable[T](tableQuery: TableQuery[AbstractTable[T]])
+  case class BootstrappedTable[T](tableQuery: lifted.TableQuery[AbstractTable[T]])
 
   class MyInt {
     @reifyAsInvoked
@@ -121,7 +121,7 @@ package object direct {
 
   class MyTableQuery {
     @passThrough
-    def apply[T <: slick.lifted.AbstractTable[_]]: TableQuery[T] = ???
+    def apply[T <: slick.lifted.AbstractTable[_]]: lifted.TableQuery[T] = ???
   }
 
   class MyString {
@@ -150,7 +150,7 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map(
-          c.typeOf[TableQuery[_]] -> c.typeOf[MyTableQuery],
+          c.typeOf[lifted.TableQuery[_]] -> c.typeOf[MyTableQuery],
           c.typeOf[Int] -> c.typeOf[MyInt],
           c.typeOf[String] -> c.typeOf[MyString]
         ),

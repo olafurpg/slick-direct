@@ -21,13 +21,10 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
 
   override val PreProcess = new (Tree => Tree) {
     def apply(tree: Tree) = {
-      println(showRaw(tree, printTypes = true))
       val freeVars = freeVariables(tree).map(_.symbol)
-      println(freeVars)
       // TODO: Make pipeline
       val withCols = new FieldExtractor(freeVars).transform(tree)
       val withTables = new TableProvider(freeVars).transform(withCols)
-      println(showRaw(withTables))
       withTables
     }
   }
@@ -81,7 +78,6 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
     }
 
     def table(typ: Type): ClassDef = {
-      //      ${members(typ)}
       val params = constructorParams(typ)
       q"""
           class LiftedTable(tag: Tag)
@@ -98,20 +94,6 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
         case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
           val typ = tree.tpe.widen.dealias
           val innerTyp = typ.typeArgs.head
-          q"""
-              {
-                class Users(tag: Tag)
-                  extends Table[User](tag, "User") {
-
-                  def id: Rep[Int] = column[Int]("id", O.PrimaryKey)
-                  def name: Rep[String] = column[String]("name")
-
-                  def * = slick.lifted.ProvenShape.proveShapeOf((id, name) <> (User.tupled, User.unapply))
-                }
-
-                bootstrap[User](TableQuery.apply(tag => new Users(tag)))
-              }
-           """
           q"""
           {
             ${table(innerTyp)}

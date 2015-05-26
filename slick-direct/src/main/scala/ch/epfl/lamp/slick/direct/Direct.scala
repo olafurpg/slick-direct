@@ -61,10 +61,10 @@ trait BaseJoinQuery[T1, T2, J1, J2, C[_]] extends Query[(T1, T2), C] {
 
 }
 
-object SlickReification extends SlickReflectUtil {
+object SlickReification {
   import slick.driver.H2Driver.api._
 
-  def bootstrap[T](tableQuery: TableQuery[AbstractTable[T]]): BootstrappedTable[T] = BootstrappedTable(tableQuery)
+  def bootstrap[T](tableQuery: lifted.TableQuery[AbstractTable[T]]): BootstrappedTable[T] = BootstrappedTable(tableQuery)
   // TODO: Make generic
   def slick_int_===[T](lhs: lifted.Rep[Int], rhs: lifted.Rep[Int]): Rep[Option[Boolean]] = {
     columnExtensionMethods(lhs) === rhs
@@ -94,24 +94,6 @@ object SlickReification extends SlickReflectUtil {
     result
   }
 
-  def select_*[T](driver: JdbcDriver, tt: TypeTag[T]): lifted.Query[AbstractTable[T], T, Seq] = {
-    val table = getTable[T](tt)
-    class LiftedTable(tag: Tag) extends driver.Table[T](tag, table.name.table) {
-      def * = ??? // We override toNode
-    }
-
-    val q: TableQuery[LiftedTable] = new TableQuery[LiftedTable](tag => new LiftedTable(tag)) {
-      override lazy val toNode = new SlickReifier(driver).tableExpansion(tt)
-    }
-
-    q
-  }
-
-  private def getTable[T: TypeTag]: slick.model.Table = {
-    val tt = typeTag[T]
-    val table = getTableFromSymbol(tt.tpe.typeSymbol)
-    table
-  }
 }
 
 /**
@@ -122,13 +104,12 @@ object SlickReification extends SlickReflectUtil {
  */
 trait BaseQuery[T] extends Query[T, Seq] {
   // Is provided during embedding
-  def tableQuery: TableQuery[Table] = ???
+  def tableQuery: lifted.TableQuery[Table] = ???
   def lift = tableQuery.asInstanceOf[lifted.Query[Table, T, Seq]]
 
 }
 
-object Query extends SlickReflectUtil {
-  @reifyAs(SlickReification.select_* _)
+object Query {
+  // Is inlined during preprocessing
   def apply[T]: BaseQuery[T] = new BaseQuery[T] {}
-
 }
