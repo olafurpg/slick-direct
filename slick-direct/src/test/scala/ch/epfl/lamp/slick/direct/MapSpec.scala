@@ -7,7 +7,6 @@ import slick.driver.H2Driver.api._
 class MapSpec extends FlatSpec with TestHelper {
 
   "Query[T].map" should "work with string column" in {
-    val users = Query[User]
     equalQueries(
       queryDebug {
         users.map(u => u.name)
@@ -17,7 +16,6 @@ class MapSpec extends FlatSpec with TestHelper {
   }
 
   it should "work with int column" in {
-    val users = Query[User]
     equalQueries(
       query {
         users.map(u => u.id)
@@ -27,7 +25,6 @@ class MapSpec extends FlatSpec with TestHelper {
   }
 
   it should "work with string column extension methods" in {
-    val users = Query[User]
     equalQueries(
       query {
         users.map(u => u.name + " Cool")
@@ -39,7 +36,6 @@ class MapSpec extends FlatSpec with TestHelper {
   }
 
   it should "work with equality == condition for int" in {
-    val users = Query[User]
     equalQueries(
       query {
         users.filter(u => u.id == 1)
@@ -49,7 +45,6 @@ class MapSpec extends FlatSpec with TestHelper {
   }
 
   it should "work with equality == condition for string" in {
-    val users = Query[User]
     equalQueries(
       query {
         users.filter(u => u.name == "Olafur")
