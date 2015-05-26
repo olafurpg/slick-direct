@@ -58,7 +58,7 @@ package object direct {
         override def tableQuery = e.tableQuery
       }
 
-    def compile[T, C[_]](e: Rep[C[T]]): direct.Query[T, C] =
+    def compile[T, C[_]](e: lifted.Query[AbstractTable[T], AbstractTable[T]#TableElementType, C]): direct.Query[T, C] =
       new Query[T, C] {
         // This cast must succeed
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
