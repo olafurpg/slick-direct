@@ -6,8 +6,6 @@ import slick.driver.H2Driver.api._
 class JoinSpec extends FlatSpec with TestHelper {
 
   "crossJoin" should "work" in {
-    val users = Query[User]
-    val cars = Query[Car]
     equalQueries(
       query {
         users join cars
@@ -17,8 +15,6 @@ class JoinSpec extends FlatSpec with TestHelper {
   }
 
   "innerJoin" should "work" in {
-    val users = Query[User]
-    val cars = Query[Car]
     equalQueries(
       queryDebug {
         users join cars on (_.id == _.ownerId)
@@ -28,8 +24,6 @@ class JoinSpec extends FlatSpec with TestHelper {
   }
 
   "fullOuterJoin" should "work" in {
-    val users = Query[User]
-    val cars = Query[Car]
     val d = queryDebug {
       users joinFull cars on (_.id == _.ownerId)
     }
@@ -38,6 +32,7 @@ class JoinSpec extends FlatSpec with TestHelper {
       (liftedUsers joinFull liftedCars on (_.id === _.ownerId)).result
     )
   }
+
 
   // TODO: We need to solve this dsl.compile mess
   // This will need to expand to arbitrarily nested types
@@ -50,7 +45,7 @@ class JoinSpec extends FlatSpec with TestHelper {
 //      val users = Query[User]
 //      val cars = Query[Car]
 //      val d = queryDebug {
-//        users joinLeft cars on (_.id == _.ownerId)
+//        users joinLeft cars
 //      }
 //      equalQueries(
 //        d.result,

@@ -72,20 +72,14 @@ package object direct {
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
       }
 
-    // These base join compile methods are SCARY :/
-    // I can't believe I wrote correctly in the first try
-    def compile[T, T2, C[_]](e: lifted.BaseJoinQuery[AbstractTable[T], AbstractTable[T2], AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType, C, _, _]): direct.BaseJoinQuery[T, T2, T, T2, C] =
-      new BaseJoinQuery[T, T2, T, T2, C] {
+    // innerJoin
+    def compile[T, T2, J, J2, C[_]](e: lifted.BaseJoinQuery[AbstractTable[T], AbstractTable[T2], AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType, C, AbstractTable[J], AbstractTable[J2]]): direct.BaseJoinQuery[T, T2, J, J2, C] =
+      new BaseJoinQuery[T, T2, J, J2, C] {
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[(T, T2)], (T, T2), C]]
       }
 
+    // full outer join
     def compile[T, T2, C[_]](e: lifted.Query[(AbstractTable[T], AbstractTable[T2]), (AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType), C]): direct.BaseJoinQuery[T, T2, T, T2, C] =
-      new BaseJoinQuery[T, T2, T, T2, C] {
-        def lift = e.asInstanceOf[lifted.Query[AbstractTable[(T, T2)], (T, T2), C]]
-      }
-
-    // Method overloading
-    def compile[T, T2, C[_]](e: Rep[C[(T, T2)]]): direct.BaseJoinQuery[T, T2, T, T2, C] =
       new BaseJoinQuery[T, T2, T, T2, C] {
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[(T, T2)], (T, T2), C]]
       }
