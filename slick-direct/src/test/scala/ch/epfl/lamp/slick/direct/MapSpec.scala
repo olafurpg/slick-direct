@@ -32,7 +32,8 @@ class MapSpec extends FlatSpec with TestHelper {
       query {
         users.map(u => u.name + " Cool")
       }.result,
-      // Note the ++, one + will give wrong results
+      // Note the ++, it's a caveat of slick.lifted.
+      // One + will compile but give wrong results
       liftedUsers.map(u => u.name ++ " Cool").result
     )
   }
