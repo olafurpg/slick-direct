@@ -54,7 +54,7 @@ class FlatMapSpec extends FlatSpec with TestHelper {
       }.result,
       (for {
         user <- liftedUsers
-        car <- liftedCars if car.ownerId < 2
+        car <- liftedCars if columnExtensionMethods(car.ownerId) < valueToConstColumn(2)
       } yield car.id).result
     )
   }

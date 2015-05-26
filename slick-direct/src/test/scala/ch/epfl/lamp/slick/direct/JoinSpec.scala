@@ -16,14 +16,15 @@ class JoinSpec extends FlatSpec with TestHelper {
     )
   }
 
-  "innerJoin" should "work" in {
+  it should "work with on" in {
     val users = Query[User]
     val cars = Query[Car]
     equalQueries(
-    query {
+      query {
         users join cars on (_.id == _.ownerId)
       }.result,
-      (liftedUsers join liftedCars on (_.id === _.ownerId)) .result
+      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
     )
   }
+
 }

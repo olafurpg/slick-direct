@@ -9,7 +9,7 @@ class MapSpec extends FlatSpec with TestHelper {
   "Query[T].map" should "work with string column" in {
     val users = Query[User]
     equalQueries(
-      query {
+      queryDebug {
         users.map(u => u.name)
       }.result,
       liftedUsers.map(u => u.name).result

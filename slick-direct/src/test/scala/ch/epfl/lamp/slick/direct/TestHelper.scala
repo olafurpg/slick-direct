@@ -27,8 +27,7 @@ trait TestHelper extends FlatSpec {
         ),
         liftedCars ++= Seq(
           Car(1, "Ford Taurus", 1),
-          Car(3, "BMW", 2),
-          Car(2, "Auris", 3)
+          Car(3, "BMW", 2)
         )
       )
       val f = for {
