@@ -21,7 +21,7 @@ class TakeSpec extends FlatSpec with TestHelper {
   it should "work with take(2).take(1)" in {
     val users = Query[User]
     equalQueries(
-      queryDebug {
+      query {
         users.take(2).take(1)
       }.result,
       liftedUsers.take(2).take(1).result

@@ -34,6 +34,12 @@ trait Query[T, C[_]] {
   @preserveInvocation
   def filter(f: T => Boolean): Query[T, C] = ???
 
+  @preserveInvocation
+  def filterNot(f: T => Boolean): Query[T, C] = ???
+
+  @preserveInvocation
+  def withFilter(f: T => Boolean): Query[T, C] = ???
+
 }
 
 object SlickReification {

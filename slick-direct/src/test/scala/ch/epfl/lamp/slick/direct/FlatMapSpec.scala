@@ -12,10 +12,10 @@ class FlatMapSpec extends FlatSpec with TestHelper {
     val users = Query[User]
     val cars = Query[Car]
     equalQueries(
-      queryDebug {
+      query {
         for {
           user <- users
-          car <- cars // if (car.ownerId == user.id)
+          car <- cars
         } yield car.id
       }.result,
       (for {
@@ -29,7 +29,7 @@ class FlatMapSpec extends FlatSpec with TestHelper {
     val users = Query[User]
     val cars = Query[Car]
     equalQueries(
-      queryDebug {
+      query {
         for {
           user <- users
           car <- cars
@@ -41,4 +41,22 @@ class FlatMapSpec extends FlatSpec with TestHelper {
       } yield car.name).result
     )
   }
+
+  "Query[T].flatMap" should "work with filter" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      query {
+        for {
+          user <- users
+          car <- cars if car.ownerId < 2
+        } yield car.id
+      }.result,
+      (for {
+        user <- liftedUsers
+        car <- liftedCars if car.ownerId < 2
+      } yield car.id).result
+    )
+  }
+
 }

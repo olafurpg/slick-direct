@@ -118,6 +118,7 @@ package object direct {
 
     def liftRep[T](debug: Boolean)(c: blackbox.Context)(block: c.Expr[T]): c.Expr[T] = {
       val preProcessing = new ProjectionProcessing[c.type](c)
+      println("DETransformation...")
       DETransformer[c.type, T, Config](c)(
         "slick-direct",
         DslConfig,
@@ -135,7 +136,7 @@ package object direct {
         Set.empty,
         Some(preProcessing),
         None,
-        if (debug) 2 else 0
+        if (debug) 4 else 0
       ).apply(block)
     }
   }
