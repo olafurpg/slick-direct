@@ -23,8 +23,7 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
     def apply(tree: Tree) = {
       val freeVars = freeVariables(tree).map(_.symbol)
       // TODO: Make pipeline
-      val withCols = new FieldExtractor(freeVars).transform(tree)
-      val withTables = new TableProvider(freeVars).transform(withCols)
+      val withTables = new FieldExtractor(freeVars).transform(tree)
       withTables
     }
   }
@@ -39,12 +38,18 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
           }.toMap
           val result = new ColumnSelect(args).transform(tree)
           result
+        case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
+          val typ = tree.tpe.widen.dealias
+          val innerTyp = typ.typeArgs.head
+          q"""
+          {
+            ${table(innerTyp)}
+            bootstrap[$innerTyp](TableQuery.apply(tag => new LiftedTable(tag)))
+          }
+          """
         case _ => super.transform(tree)
       }
     }
-  }
-
-  private final class TableProvider(captured: List[Symbol]) extends Transformer {
     def shape(typ: Type, syms: List[Symbol]): DefDef = {
       val typName = typ.typeSymbol.name.toString
       val names = syms.map(_.name)
@@ -86,22 +91,6 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
             ${shape(typ, params)}
           }
         """
-    }
-
-    override def transform(tree: Tree): Tree = {
-      tree match {
-        // Generate  TableQuery for BaseQuery
-        case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
-          val typ = tree.tpe.widen.dealias
-          val innerTyp = typ.typeArgs.head
-          q"""
-          {
-            ${table(innerTyp)}
-            bootstrap[$innerTyp](TableQuery.apply(tag => new LiftedTable(tag)))
-          }
-          """
-        case _ => super.transform(tree)
-      }
     }
   }
 

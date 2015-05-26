@@ -64,6 +64,12 @@ package object direct {
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
       }
 
+    def compile[T, C[_]](e: lifted.Rep[C[T]]): direct.Query[T, C] =
+      new Query[T, C] {
+        // This cast must succeed
+        def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
+      }
+
     // Method overloading
     def compile[T, T2, C[_]](e: Rep[C[(T, T2)]]): direct.BaseJoinQuery[T, T2, T, T2, C] =
       new BaseJoinQuery[T, T2, T, T2, C] {
