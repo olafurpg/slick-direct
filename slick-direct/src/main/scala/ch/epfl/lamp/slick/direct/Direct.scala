@@ -40,12 +40,22 @@ trait Query[T, C[_]] {
   @reifyAsInvoked
   def withFilter(f: T => Boolean): Query[T, C] = ???
 
+  @reifyAsInvoked
+  def join[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, T2, C] = ???
+
+}
+
+trait BaseJoinQuery[T1, T2, C[_]] extends Query[(T1, T2), C] {
+
+  @reifyAsInvoked
+  def on(cond: (T1, T2) => Boolean): Query[(T1, T2), C] = ???
+
 }
 
 object SlickReification {
   import slick.driver.H2Driver.api._
 
-  // TODO: Find generic way to
+  // TODO: Make generic
   def slick_int_===[T](lhs: lifted.Rep[Int], rhs: lifted.Rep[Int]): Rep[Option[Boolean]] = {
     columnExtensionMethods(lhs) === rhs
   }

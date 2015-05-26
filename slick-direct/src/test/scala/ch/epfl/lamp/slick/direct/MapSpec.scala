@@ -16,7 +16,7 @@ class MapSpec extends FlatSpec with TestHelper {
     )
   }
 
-  "Query[T].map" should "work with int column" in {
+  it should "work with int column" in {
     val users = Query[User]
     equalQueries(
       query {
@@ -26,8 +26,7 @@ class MapSpec extends FlatSpec with TestHelper {
     )
   }
 
-  // TODO: Problem with root driver.Table reference
-  "Query[T].map" should "work with string column extension methods" in {
+  it should "work with string column extension methods" in {
     val users = Query[User]
     equalQueries(
       query {
@@ -41,7 +40,7 @@ class MapSpec extends FlatSpec with TestHelper {
   it should "work with equality == condition for int" in {
     val users = Query[User]
     equalQueries(
-      queryDebug {
+      query {
         users.filter(u => u.id == 1)
       }.result,
       liftedUsers.filter(u => u.id === 1).result
@@ -51,7 +50,7 @@ class MapSpec extends FlatSpec with TestHelper {
   it should "work with equality == condition for string" in {
     val users = Query[User]
     equalQueries(
-      queryDebug {
+      query {
         users.filter(u => u.name == "Olafur")
       }.result,
       liftedUsers.filter(u => u.name === "Olafur").result

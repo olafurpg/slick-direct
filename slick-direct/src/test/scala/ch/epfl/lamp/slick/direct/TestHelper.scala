@@ -22,11 +22,13 @@ trait TestHelper extends FlatSpec {
         liftedCars.schema.create,
         liftedUsers ++= Seq(
           User(1, "Olafur"),
-          User(2, "Vojin")
+          User(2, "Vojin"),
+          User(3, "cvogt")
         ),
         liftedCars ++= Seq(
           Car(1, "Ford Taurus", 1),
-          Car(2, "Auris", 1)
+          Car(3, "BMW", 2),
+          Car(2, "Auris", 3)
         )
       )
       val f = for {
