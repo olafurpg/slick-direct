@@ -15,7 +15,7 @@ class JoinSpec extends FlatSpec with TestHelper {
 //      (liftedUsers join liftedCars).result
 //    )
 //  }
-//
+
 //  "innerJoin" should "work" in {
 //    val users = Query[User]
 //    val cars = Query[Car]
