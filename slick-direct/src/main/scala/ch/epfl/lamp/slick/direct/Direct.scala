@@ -41,17 +41,17 @@ trait Query[T, C[_]] {
   def withFilter(f: T => Boolean): Query[T, C] = ???
 
   @reifyAsInvoked
-  def join[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, T2, C] = ???
+  def join[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, T2, T, T2, C] = ???
 
   @reifyAsInvoked
-  def joinLeft[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, Option[T2], C] = ???
+  def joinLeft[T2, D[_]](q: Query[T2, D]): BaseJoinQuery[T, Option[T2], T, T2, C] = ???
 
 }
 
-trait BaseJoinQuery[T1, T2, C[_]] extends Query[(T1, T2), C] {
+trait BaseJoinQuery[T1, T2, J1, J2, C[_]] extends Query[(T1, T2), C] {
 
   @reifyAsInvoked
-  def on(cond: (T1, T2) => Boolean): Query[(T1, T2), C] = ???
+  def on(cond: (J1, J2) => Boolean): Query[(T1, T2), C] = ???
 
 }
 
