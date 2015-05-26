@@ -5,27 +5,27 @@ import slick.driver.H2Driver.api._
 
 class JoinSpec extends FlatSpec with TestHelper {
 
-//  "crossJoin" should "work" in {
-//    val users = Query[User]
-//    val cars = Query[Car]
-//    equalQueries(
-//      queryDebug {
-//        users join cars
-//      }.result,
-//      (liftedUsers join liftedCars).result
-//    )
-//  }
+  "crossJoin" should "work" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      query {
+        users join cars
+      }.result,
+      (liftedUsers join liftedCars).result
+    )
+  }
 
-//  "innerJoin" should "work" in {
-//    val users = Query[User]
-//    val cars = Query[Car]
-//    equalQueries(
-//      query {
-//        users join cars on (_.id == _.ownerId)
-//      }.result,
-//      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
-//    )
-//  }
+  "innerJoin" should "work" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      queryDebug {
+        users join cars on (_.id == _.ownerId)
+      }.result,
+      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
+    )
+  }
 
   // TODO: Implement LiftedTable.*: ProvenShape
   //    [info] - should work *** FAILED ***

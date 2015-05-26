@@ -52,6 +52,8 @@ package object direct {
 
     type Rep[T] = slick.lifted.Rep[T]
 
+    // TODO: URGENT. This overloaded compile method is becoming scary,
+    // we must be able to simplify this.
     def compile[T](e: BootstrappedTable[T]): direct.BaseQuery[T] =
       new BaseQuery[T] {
         // This cast must succeed
@@ -68,6 +70,18 @@ package object direct {
       new Query[T, C] {
         // This cast must succeed
         def lift = e.asInstanceOf[lifted.Query[AbstractTable[T], T, C]]
+      }
+
+    // These base join compile methods are SCARY :/
+    // I can't believe I wrote correctly in the first try
+    def compile[T, T2, C[_]](e: lifted.BaseJoinQuery[AbstractTable[T], AbstractTable[T2], AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType, C, _, _]): direct.BaseJoinQuery[T, T2, T, T2, C] =
+      new BaseJoinQuery[T, T2, T, T2, C] {
+        def lift = e.asInstanceOf[lifted.Query[AbstractTable[(T, T2)], (T, T2), C]]
+      }
+
+    def compile[T, T2, C[_]](e: lifted.Query[(AbstractTable[T], AbstractTable[T2]), (AbstractTable[T]#TableElementType, AbstractTable[T2]#TableElementType), C]): direct.BaseJoinQuery[T, T2, T, T2, C] =
+      new BaseJoinQuery[T, T2, T, T2, C] {
+        def lift = e.asInstanceOf[lifted.Query[AbstractTable[(T, T2)], (T, T2), C]]
       }
 
     // Method overloading
