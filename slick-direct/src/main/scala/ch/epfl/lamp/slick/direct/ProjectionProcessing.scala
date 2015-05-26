@@ -38,7 +38,7 @@ class ProjectionProcessing[C <: Context](ctx: C) extends PreProcessing(ctx)(Nil)
                 def * = slick.lifted.ProvenShape.proveShapeOf((id, name) <> (User.tupled, User.unapply))
               }
 
-              TableQuery.apply(tag => new Users(tag))
+              bootstrap[User](TableQuery.apply(tag => new Users(tag)))
            """
         case _ => super.transform(tree)
       }

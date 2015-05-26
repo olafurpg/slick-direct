@@ -11,6 +11,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait TestHelper extends FlatSpec {
   val liftedUsers = TableQuery[Users]
   val liftedCars = TableQuery[Cars]
+  val users = Query[User]
+  val cars = Query[Car]
 
   type DB = H2Driver.backend.DatabaseDef
 

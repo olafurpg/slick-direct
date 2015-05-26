@@ -52,13 +52,12 @@ package object direct {
 
     type Rep[T] = slick.lifted.Rep[T]
 
-    def compile[T, C[_]](e: Rep[C[T]]): direct.BaseQuery[T] =
+    def compile[T](e: BootstrappedTable[T]): direct.BaseQuery[T] =
       new BaseQuery[T] {
         // This cast must succeed
-        override def tableQuery = e.asInstanceOf[TableQuery[Table]]
+        override def tableQuery = e.tableQuery
       }
 
-    // TODO: Do we want the result to be from slick.ast?
     def compile[T, C[_]](e: Rep[C[T]]): direct.Query[T, C] =
       new Query[T, C] {
         // This cast must succeed
@@ -91,6 +90,9 @@ package object direct {
 
   trait VirtualizationOverrides {
 
+    @reifyAs(SlickReification.bootstrap _)
+    def bootstrap[T](tableQuery: TableQuery[AbstractTable[T]]): BaseQuery[T] = ???
+
     @reifyAsInvoked
     def <[T](a: T, b: T): Boolean = ???
 
@@ -104,6 +106,8 @@ package object direct {
     def infix_==(a: String, b: String): Boolean = ???
 
   }
+
+  case class BootstrappedTable[T](tableQuery: TableQuery[AbstractTable[T]])
 
   class MyInt {
     @reifyAsInvoked
