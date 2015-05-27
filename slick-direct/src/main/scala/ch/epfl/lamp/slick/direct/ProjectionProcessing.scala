@@ -51,7 +51,6 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
           // TODO: Make configurable
           q"liftColumnSelect[${ctx(obj)}, ${s.tpe.widen.dealias}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
         case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
-          println(showRaw(t))
           val typ = tree.tpe.widen.dealias
           val innerTyp = typ.typeArgs.head
           q"""

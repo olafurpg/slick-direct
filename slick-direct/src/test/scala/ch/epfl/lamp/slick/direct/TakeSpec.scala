@@ -9,7 +9,7 @@ class TakeSpec extends FlatSpec with TestHelper {
 
   "Query[T].take" should "work with take(1)" in {
     equalQueries(
-      queryDebug {
+      query {
         users.take(1)
       }.result,
       liftedUsers.take(1).result

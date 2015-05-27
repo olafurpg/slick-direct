@@ -9,7 +9,7 @@ class FlatMapSpec extends FlatSpec with TestHelper {
   // 3. Preprocessing for case classes
  "Query[T].flatMap" should "work with car.id select" in {
     equalQueries(
-      queryDebug {
+      query {
         for {
           user <- users
           car <- cars

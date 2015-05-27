@@ -7,6 +7,7 @@ import slick.driver.H2Driver.api._
 class MapSpec extends FlatSpec with TestHelper {
 
   "Query[T].map" should "work with string column" in {
+
     equalQueries(
       queryDebug {
         users.map(u => u.name)
