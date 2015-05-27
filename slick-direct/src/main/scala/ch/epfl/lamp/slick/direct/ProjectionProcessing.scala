@@ -17,7 +17,13 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
 
   override val PreProcess = new (Tree => Tree) {
     def apply(tree: Tree) = {
+      println("*******************")
+      println("* Before Projection")
+      println("*******************")
+      println(tree)
+      println(showRaw(tree))
       val withTables = new Direct2LiftedPreprocessing().transform(tree)
+      println(withTables)
       withTables
     }
   }
@@ -35,7 +41,9 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
   // TODO ctx: Map[TermName, Tree]
   private final class Direct2LiftedPreprocessing(ctx: Map[String, Tree] = Map.empty) extends Transformer {
     override def transform(tree: Tree): Tree = {
+      println(tree)
       tree match {
+        case _: Import => tree
         case Function(lhs, rhs) =>
           val newCtx = tree.collect {
             case ValDef(_, TermName(name), tpt, _) =>
@@ -43,13 +51,21 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
           }.toMap
           val args = lhs.map { vd =>
             // TODO: Can typeTransformer help here?
+            val liftedType =  tq"Table[${vd.tpt}]"
+            println(vd.tpt)
+            println(liftedType)
             ValDef(vd.mods, vd.name, TypeTree(c.typeOf[AnyRef]), vd.rhs)
           }
           Function(args, new Direct2LiftedPreprocessing(newCtx).transform(rhs))
 
         case s @ Select(lhs @ Ident(TermName(obj)), TermName(field)) if ctx.contains(obj) =>
+
+          val typedType = TypeTree(s.tpe.widen.dealias)
+          val implicitTypedType = q"implicitly[_root_.slick.ast.TypedType[$typedType]]"
+          val implicitDriver = q"implicitly[_root_.slick.driver.JdbcDriver]"
           // TODO: Make configurable
-          q"liftColumnSelect[${ctx(obj)}, ${s.tpe.widen.dealias}]($lhs, ${Literal(Constant(field))}, ${Literal(Constant(s.tpe.widen.typeSymbol.fullName))})"
+          q"column[${ctx(obj)}, ${s.tpe.widen.dealias}]($lhs, ${Literal(Constant(field))}, $implicitTypedType, $implicitDriver)"
+
         case t if tree.tpe <:< c.typeOf[direct.BaseQuery[_]] =>
           val typ = tree.tpe.widen.dealias
           val innerTyp = typ.typeArgs.head
@@ -77,9 +93,9 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
 
     def column(typ: Type)(member: Symbol): DefDef = {
       val sym = typ.member(member.name)
-      val fieldType = sym.typeSignature
+      val fieldType = TypeTree(sym.typeSignature.typeSymbol.asType.toType)
       q"""
-          def ${TermName(sym.name.toString)}: slick.lifted.Rep[${fieldType}] = column[$fieldType](${Literal(Constant(sym.name.toString))});
+          def ${TermName(sym.name.toString)}: _root_.slick.lifted.Rep[${fieldType}] = column[$fieldType](${Literal(Constant(sym.name.toString))})
        """
     }
 

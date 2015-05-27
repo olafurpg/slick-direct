@@ -5,33 +5,33 @@ import slick.driver.H2Driver.api._
 
 class JoinSpec extends FlatSpec with TestHelper {
 
-  "crossJoin" should "work" in {
-    equalQueries(
-      query {
-        users join cars
-      }.result,
-      (liftedUsers join liftedCars).result
-    )
-  }
-
-  "innerJoin" should "work" in {
-    equalQueries(
-      query {
-        users join cars on (_.id == _.ownerId)
-      }.result,
-      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
-    )
-  }
-
-  "fullOuterJoin" should "work" in {
-    val d = query {
-      users joinFull cars on (_.id == _.ownerId)
-    }
-    equalQueries(
-      d.result,
-      (liftedUsers joinFull liftedCars on (_.id === _.ownerId)).result
-    )
-  }
+//  "crossJoin" should "work" in {
+//    equalQueries(
+//      query {
+//        users join cars
+//      }.result,
+//      (liftedUsers join liftedCars).result
+//    )
+//  }
+//
+//  "innerJoin" should "work" in {
+//    equalQueries(
+//      query {
+//        users join cars on (_.id == _.ownerId)
+//      }.result,
+//      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
+//    )
+//  }
+//
+//  "fullOuterJoin" should "work" in {
+//    val d = query {
+//      users joinFull cars on (_.id == _.ownerId)
+//    }
+//    equalQueries(
+//      d.result,
+//      (liftedUsers joinFull liftedCars on (_.id === _.ownerId)).result
+//    )
+//  }
 
   // TODO: We need to solve this dsl.compile mess
   // This will need to expand to arbitrarily nested types

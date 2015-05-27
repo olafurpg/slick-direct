@@ -4,9 +4,11 @@ import ch.epfl.directembedding.transformers.{passThrough, reifyAsInvokedFrom, re
 import ch.epfl.directembedding.{ DETransformer, DslConfig }
 import slick.ast.{ TypedType, LiteralNode }
 import slick.dbio.NoStream
+import slick.driver.JdbcDriver
 import slick.lifted
 import slick.lifted.AbstractTable
 
+import scala.reflect.ClassTag
 import scala.reflect.macros.{ Universe, Context, blackbox }
 
 import slick.driver.H2Driver.api._
@@ -115,6 +117,9 @@ package object direct {
     @reifyAs(SlickReification.column _)
     def liftColumnSelect[T, C](e: T, fieldName: String, typ: String): C = ???
 
+    @reifyAs(SlickReification.column _)
+    def column[T, C](e: T, fieldName: String, tt: TypedType[C], driver: JdbcDriver): C = ???
+
     @reifyAs(SlickReification.slick_int_=== _)
     def infix_==(a: Int, b: Int): Boolean = ???
 
@@ -136,6 +141,14 @@ package object direct {
   class MyTableQuery {
     @passThrough
     def apply[T <: slick.lifted.AbstractTable[_]]: lifted.TableQuery[T] = ???
+  }
+
+  class MyClassTag {
+    @passThrough
+    def apply[T](a: Class[_]): ClassTag[T] = {
+
+      ???
+    }
   }
 
   class MyString {
@@ -165,6 +178,7 @@ package object direct {
         DslConfig,
         Map(
           c.typeOf[lifted.TableQuery[_]] -> c.typeOf[MyTableQuery],
+          c.typeOf[ClassTag[_]] -> c.typeOf[MyClassTag],
           c.typeOf[Int] -> c.typeOf[MyInt],
           c.typeOf[String] -> c.typeOf[MyString]
         ),
@@ -174,8 +188,7 @@ package object direct {
           c.typeOf[Long] -> "constColumnLift",
           c.typeOf[direct.Query[_, Seq]] -> "queryLift"
         ),
-        //        Set(c.typeOf[Query[_]]),
-        Set.empty,
+        Set(c.typeOf[ClassTag[_]], c.typeOf[Class[_]]),
         Some(preProcessing),
         None,
         if (debug) 1 else 0
