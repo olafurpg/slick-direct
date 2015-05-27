@@ -5,16 +5,19 @@ import slick.driver.H2Driver.api._
 
 class FilterSpec extends FlatSpec with TestHelper {
 
-//  "filter" should "work with literal booleans" in {
-//    val users = Query[User]
-//    equalQueries(
-//      query {
-//        users.filter(u => true)
-//      }.result,
-//      liftedUsers.filter(u => u.id =!= 5).result
-//    )
-//  }
-//
+  "filter" should "work with literal booleans" in {
+    val users = Query[User]
+    equalQueries(
+      query {
+        users.filter(u => true)
+      }.result,
+      liftedUsers.filter(u => u.id =!= UserId(5)).result
+    )
+  }
+
+  //TODO: FilterSpec.scala:22: value < is not a member of ch.epfl.lamp.slick.direct.UserId
+//    [error]         users.filter(u => u.id < 2)
+//    [error]                                ^
 //  it should "work with equality < condition" in {
 //    val users = Query[User]
 //    equalQueries(
@@ -34,25 +37,25 @@ class FilterSpec extends FlatSpec with TestHelper {
 //      liftedUsers.filter(u => u.id > 1).result
 //    )
 //  }
-//
-//  "filterNot" should "work with literal booleans" in {
-//    val users = Query[User]
-//    equalQueries(
-//      query {
-//        users.filterNot(u => true)
-//      }.result,
-//      liftedUsers.filterNot(u => u.id =!= 5).result
-//    )
-//  }
-//
-//  "withFilter" should "work with literal booleans" in {
-//    val users = Query[User]
-//    equalQueries(
-//      query {
-//        users.withFilter(u => true)
-//      }.result,
-//      liftedUsers.withFilter(u => u.id =!= 5).result
-//    )
-//  }
+
+  "filterNot" should "work with literal booleans" in {
+    val users = Query[User]
+    equalQueries(
+      query {
+        users.filterNot(u => true)
+      }.result,
+      liftedUsers.filterNot(u => u.id =!= UserId(5)).result
+    )
+  }
+
+  "withFilter" should "work with literal booleans" in {
+    val users = Query[User]
+    equalQueries(
+      query {
+        users.withFilter(u => true)
+      }.result,
+      liftedUsers.withFilter(u => u.id =!= UserId(5)).result
+    )
+  }
 
 }
