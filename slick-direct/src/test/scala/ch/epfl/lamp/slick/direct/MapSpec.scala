@@ -32,7 +32,7 @@ class MapSpec extends FlatSpec with TestHelper {
       }.result,
       // Note the ++, it's a caveat of slick.lifted.
       // One + will compile but give wrong results
-      liftedUsers.map(u => u.name ++ " Cool").result
+      liftedUsers.map(u => stringColumnExtensionMethods(u.name) ++ " Cool").result
     )
   }
 

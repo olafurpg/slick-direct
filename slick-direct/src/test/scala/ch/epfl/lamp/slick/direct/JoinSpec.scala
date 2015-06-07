@@ -16,24 +16,24 @@ class JoinSpec extends FlatSpec with TestHelper {
 
 
   // TODO: Equality on custom types
-  //  "innerJoin" should "work" in {
-  //    equalQueries(
-  //      query {
-  //        users join cars on (_.id == _.ownerId)
-  //      }.result,
-  //      (liftedUsers join liftedCars on (_.id === _.ownerId)).result
-  //    )
-  //  }
+    "innerJoin" should "work" in {
+      equalQueries(
+        query {
+          users join cars on (_.id == _.ownerId)
+        }.result,
+        (liftedUsers join liftedCars on (_.id === _.ownerId)).result
+      )
+    }
 
-  //  "fullOuterJoin" should "work" in {
-  //    val d = query {
-  //      users joinFull cars on (_.id == _.ownerId)
-  //    }
-  //    equalQueries(
-  //      d.result,
-  //      (liftedUsers joinFull liftedCars on (_.id === _.ownerId)).result
-  //    )
-  //  }
+    "fullOuterJoin" should "work" in {
+      val d = query {
+        users joinFull cars on (_.id == _.ownerId)
+      }
+      equalQueries(
+        d.result,
+        (liftedUsers joinFull liftedCars on (_.id === _.ownerId)).result
+      )
+    }
 
   // TODO: We need to solve this dsl.compile mess
   // This will need to expand to arbitrarily nested types

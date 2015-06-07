@@ -11,14 +11,15 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.runtime.universe.TypeTag
 
 
+// Support is limited for now
 case class UserId(value: Int) extends MappedTo[Int]
-case class User(id: UserId, name: String)
+case class User(id: Int, name: String)
 
 
 class Users(tag: Tag)
   extends Table[User](tag, "User") {
 
-  def id: Rep[UserId] = column[UserId]("id")
+  def id: Rep[Int] = column[Int]("id")
   def name: Rep[String] = column[String]("name")
 
   def * = ProvenShape.proveShapeOf((id, name) <> ((User.apply _).tupled, User.unapply))

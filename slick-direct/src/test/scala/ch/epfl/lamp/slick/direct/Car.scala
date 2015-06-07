@@ -10,14 +10,14 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.reflect.runtime.universe.TypeTag
 
-case class Car(id: Int, name: String, ownerId: UserId)
+case class Car(id: Int, name: String, ownerId: Int)
 
 class Cars(tag: Tag)
   extends Table[Car](tag, "Car") {
 
   def id: Rep[Int] = column[Int]("id", O.PrimaryKey)
   def name: Rep[String] = column[String]("name")
-  def ownerId: Rep[UserId] = column[UserId]("ownerId")
+  def ownerId: Rep[Int] = column[Int]("ownerId")
 
   def * = ProvenShape.proveShapeOf((id, name, ownerId) <> (Car.tupled, Car.unapply))
 }

@@ -42,21 +42,21 @@ class FlatMapSpec extends FlatSpec with TestHelper {
 
 //    [error] /FlatMapSpec.scala:50: value < is not a member of ch.epfl.lamp.slick.direct.UserId
 //    [error]           car <- cars if car.ownerId < 2
-//  "Query[T].flatMap" should "work with filter" in {
-//    val users = Query[User]
-//    val cars = Query[Car]
-//    equalQueries(
-//      query {
-//        for {
-//          user <- users
-//          car <- cars if car.ownerId < UserId(2)
-//        } yield car.id
-//      }.result,
-//      (for {
-//        user <- liftedUsers
-//        car <- liftedCars if car.ownerId < UserId(2)
-//      } yield car.id).result
-//    )
-//  }
+  "Query[T].flatMap" should "work with filter" in {
+    val users = Query[User]
+    val cars = Query[Car]
+    equalQueries(
+      query {
+        for {
+          user <- users
+          car <- cars if car.ownerId < 2
+        } yield car.id
+      }.result,
+      (for {
+        user <- liftedUsers
+        car <- liftedCars if car.ownerId < 2
+      } yield car.id).result
+    )
+  }
 
 }

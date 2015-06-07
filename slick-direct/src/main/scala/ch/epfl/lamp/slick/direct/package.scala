@@ -130,6 +130,11 @@ package object direct {
 
   case class BootstrappedTable[T](tableQuery: lifted.TableQuery[AbstractTable[T]])
 
+  object MyPref {
+    @passThrough
+    def implicitly[T]: T = ???
+  }
+  
   class MyInt {
     @reifyAsInvoked
     def <(that: Int): Boolean = ???
@@ -177,6 +182,7 @@ package object direct {
         "slick-direct",
         DslConfig,
         Map(
+          c.typeOf[scala.Predef.type] -> c.typeOf[MyPref.type],
           c.typeOf[lifted.TableQuery[_]] -> c.typeOf[MyTableQuery],
           c.typeOf[ClassTag[_]] -> c.typeOf[MyClassTag],
           c.typeOf[Int] -> c.typeOf[MyInt],
