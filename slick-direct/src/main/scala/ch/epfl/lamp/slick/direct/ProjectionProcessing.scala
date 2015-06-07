@@ -24,7 +24,12 @@ class ProjectionProcessing[C <: blackbox.Context](ctx: C)
       println(showRaw(tree))
       val withTables = new Direct2LiftedPreprocessing().transform(tree)
       println(withTables)
-      withTables
+      q"""
+          {
+            import reflect.ClassTag
+            $withTables
+          }
+       """
     }
   }
 

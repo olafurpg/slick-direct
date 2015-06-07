@@ -17,10 +17,9 @@ lazy val slickDirect = (project in file("slick-direct")).settings(
         javaOptions += "-Xmx4G",
         logBuffered := false,
           testOptions in Test += Tests.Argument("-oF")
-        ).dependsOn(directembedding)
+        ).dependsOn(directembedding  % "compile->compile;test->test")
 
 lazy val directembedding = ProjectRef(file("./directembedding"), "directembedding")
-
 
 initialCommands := "import ch.epfl.lamp.slickdirect._"
 

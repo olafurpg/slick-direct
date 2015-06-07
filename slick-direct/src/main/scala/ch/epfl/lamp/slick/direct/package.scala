@@ -45,7 +45,6 @@ package object direct {
     with VirtualizationOverrides {
     // We transform them manually in PostProcessing
     override val virtualizeFunctions: Boolean = false
-    override val embedFunctions: Boolean = true
     override val flattenCurriedFunctions: Boolean = false
     override val virtualizeVal: Boolean = false
 
@@ -134,7 +133,7 @@ package object direct {
     @passThrough
     def implicitly[T]: T = ???
   }
-  
+
   class MyInt {
     @reifyAsInvoked
     def <(that: Int): Boolean = ???
