@@ -43,7 +43,6 @@ package object direct {
     with VirtualizationOverrides {
     // We transform them manually in PostProcessing
     override val virtualizeFunctions: Boolean = false
-    override val embedFunctions: Boolean = true
     override val flattenCurriedFunctions: Boolean = false
 
     // TODO: Get rid of these and manually typecheck that members exist?
